@@ -68,6 +68,14 @@ const JobsModule = {
             });
         }
 
+        // Bulk export button
+        const bulkExportBtn = document.getElementById('bulkExportBtn');
+        if (bulkExportBtn) {
+            bulkExportBtn.addEventListener('click', async () => {
+                await this.bulkExportJobs();
+            });
+        }
+
         // Category management
         this.setupCategoryManagement();
     },
@@ -130,12 +138,24 @@ const JobsModule = {
                     </div>
                 </div>
                 <div class="job-footer">
-                    <button class="btn btn-outline-primary btn-sm edit-job" data-job-id="${job.id}">
-                        <i class="fas fa-edit me-1"></i>Edit
-                    </button>
-                    <button class="btn btn-outline-danger btn-sm delete-job" data-job-id="${job.id}">
-                        <i class="fas fa-trash-alt me-1"></i>Delete
-                    </button>
+                    <div class="job-info">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Posted ${FormatUtils.formatDate(job.created_at || new Date())}</span>
+                    </div>
+                    <div class="job-actions">
+                        <button class="btn btn-outline-secondary btn-sm preview-job" data-job-id="${job.id}" title="Preview & Print">
+                            <i class="fas fa-eye me-1"></i>Preview
+                        </button>
+                        <button class="btn btn-outline-info btn-sm export-job" data-job-id="${job.id}" title="Export as PDF">
+                            <i class="fas fa-download me-1"></i>PDF
+                        </button>
+                        <button class="btn btn-outline-primary btn-sm edit-job" data-job-id="${job.id}">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </button>
+                        <button class="btn btn-outline-danger btn-sm delete-job" data-job-id="${job.id}">
+                            <i class="fas fa-trash-alt me-1"></i>Delete
+                        </button>
+                    </div>
                 </div>
             </div>
         `).join('');
@@ -145,6 +165,24 @@ const JobsModule = {
 
     // Setup job card event listeners
     setupJobCardListeners() {
+        // Preview job buttons
+        document.querySelectorAll('.preview-job').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const jobId = btn.dataset.jobId;
+                await this.previewJob(jobId);
+            });
+        });
+
+        // Export job buttons
+        document.querySelectorAll('.export-job').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const jobId = btn.dataset.jobId;
+                await this.exportJob(jobId);
+            });
+        });
+
         // Edit job buttons
         document.querySelectorAll('.edit-job').forEach(btn => {
             btn.addEventListener('click', async (e) => {
@@ -227,6 +265,63 @@ const JobsModule = {
         } catch (error) {
             console.error('Error loading job details:', error);
             ToastUtils.showError(error.message || 'Failed to load job details');
+        }
+    },
+
+    // Preview job posting
+    async previewJob(jobId) {
+        try {
+            const data = await APIService.jobs.getById(jobId);
+            
+            if (!data.success) {
+                throw new Error(data.error || 'Failed to load job details');
+            }
+            
+            const job = data.job;
+            JobExportUtils.showJobPreview(job);
+        } catch (error) {
+            console.error('Error previewing job:', error);
+            ToastUtils.showError(error.message || 'Failed to preview job');
+        }
+    },
+
+    // Export job as PDF
+    async exportJob(jobId) {
+        try {
+            const data = await APIService.jobs.getById(jobId);
+            
+            if (!data.success) {
+                throw new Error(data.error || 'Failed to load job details');
+            }
+            
+            const job = data.job;
+            await JobExportUtils.exportJobAsPDF(job);
+        } catch (error) {
+            console.error('Error exporting job:', error);
+            ToastUtils.showError(error.message || 'Failed to export job');
+        }
+    },
+
+    // Bulk export all jobs
+    async bulkExportJobs() {
+        try {
+            const data = await APIService.jobs.getAll();
+            
+            if (!data.success) {
+                throw new Error(data.error || 'Failed to load jobs');
+            }
+            
+            const jobs = data.jobs || [];
+            
+            if (jobs.length === 0) {
+                ToastUtils.showWarning('No jobs available to export');
+                return;
+            }
+
+            await JobExportUtils.exportAllJobsAsPDF(jobs);
+        } catch (error) {
+            console.error('Error bulk exporting jobs:', error);
+            ToastUtils.showError(error.message || 'Failed to export jobs');
         }
     },
 

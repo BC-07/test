@@ -251,6 +251,29 @@
   box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
 }
 
+/* Export and Preview Button Styles */
+.preview-job {
+  border-color: var(--text-secondary);
+  color: var(--text-secondary);
+}
+
+.preview-job:hover {
+  background: var(--text-secondary);
+  color: white;
+  box-shadow: 0 4px 8px rgba(100, 116, 139, 0.3);
+}
+
+.export-job {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
+
+.export-job:hover {
+  background: var(--accent-color);
+  color: white;
+  box-shadow: 0 4px 8px rgba(56, 189, 248, 0.3);
+}
+
 /* No Jobs Message */
 .no-jobs-message {
   text-align: center;
@@ -331,6 +354,26 @@
   
   .job-footer .job-actions {
     justify-content: space-between;
+  }
+}
+
+/* Responsive Job Actions */
+@media (max-width: 576px) {
+  .job-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .job-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+  
+  .job-actions .btn {
+    justify-content: center;
+    padding: 0.75rem 0.5rem;
   }
 }
 
