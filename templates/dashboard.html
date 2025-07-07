@@ -13,7 +13,10 @@
     <meta name="description" content="Resume screening dashboard - Upload and analyze resumes with AI">
     <meta name="robots" content="noindex, nofollow">
     
-    <!-- Favicon -->
+    <!-- Favicon                         <button class="btn btn-primary add-job-btn" id="addJobBtn">
+                            <i class="fas fa-plus"></i>
+                            Add New Job
+                        </button>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
     
     <!-- External CSS -->
@@ -32,6 +35,7 @@
     <link rel="stylesheet" href="/static/css/components/navigation.css">
     <link rel="stylesheet" href="/static/css/components/modal-badge-progress.css">
     <link rel="stylesheet" href="/static/css/components/notifications-lists.css">
+    <link rel="stylesheet" href="/static/css/components/job-components.css">
     
     <!-- Page-specific CSS -->
     <link rel="stylesheet" href="/static/css/pages/dashboard.css">
@@ -606,68 +610,157 @@
                     <div class="modal fade" id="jobModal" tabindex="-1">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
+                                <div class="modal-progress">
+                                    <div class="modal-progress-bar"></div>
+                                </div>
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="jobModalTitle">Add New Job</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                 </div>
                                 <div class="modal-body">
                                     <form id="jobForm">
-                                        <div class="mb-3">
-                                            <label class="form-label">Job Title</label>
-                                            <input type="text" class="form-control" id="jobTitle" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Department</label>
-                                            <input type="text" class="form-control" id="jobDepartment" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Category</label>
-                                            <div class="d-flex gap-2">
-                                                <select class="form-select" id="jobCategory" required>
-                                                    <option value="">Select a category</option>
-                                                </select>
-                                                <button type="button" class="btn btn-outline-primary" id="addCategoryBtn">
-                                                    <i class="fas fa-plus"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-outline-danger" id="deleteCategoryBtn" disabled>
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-outline-secondary" id="manageCategoriesBtn">
-                                                    <i class="fas fa-cog"></i>
-                                                </button>
+                                        <!-- Basic Information Section -->
+                                        <div class="job-modal-section">
+                                            <div class="job-modal-section-title">
+                                                <i class="fas fa-info-circle"></i>
+                                                Basic Information
                                             </div>
-                                            <div class="mt-2" id="categoryManagement" style="display: none;">
-                                                <small class="text-muted">Manage existing categories:</small>
-                                                <div id="categoryList" class="mt-1">
-                                                    <!-- Categories with delete options will be shown here -->
+                                            <div class="modal-form-grid">
+                                                <div class="enhanced-form-field">
+                                                    <label class="form-label">
+                                                        <i class="fas fa-briefcase"></i>
+                                                        Job Title
+                                                        <span class="required-indicator">*</span>
+                                                    </label>
+                                                    <input type="text" class="form-control" id="jobTitle" required placeholder="e.g. Senior Software Engineer">
+                                                    <div class="field-help">
+                                                        <i class="fas fa-lightbulb"></i>
+                                                        Make it specific and descriptive
+                                                    </div>
+                                                </div>
+                                                <div class="enhanced-form-field">
+                                                    <label class="form-label">
+                                                        <i class="fas fa-building"></i>
+                                                        Department
+                                                        <span class="required-indicator">*</span>
+                                                    </label>
+                                                    <input type="text" class="form-control" id="jobDepartment" required placeholder="e.g. Engineering">
+                                                    <div class="field-help">
+                                                        <i class="fas fa-lightbulb"></i>
+                                                        Which team will this person join?
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Required Skills</label>
-                                            <div class="skills-input-container">
-                                                <input type="text" class="form-control" id="skillInput">
-                                                <div id="skillTags" class="skill-tags"></div>
+
+                                        <!-- Category & Experience Section -->
+                                        <div class="job-modal-section">
+                                            <div class="job-modal-section-title">
+                                                <i class="fas fa-tags"></i>
+                                                Category & Experience
+                                            </div>
+                                            <div class="modal-form-grid">
+                                                <div class="enhanced-form-field">
+                                                    <label class="form-label">
+                                                        <i class="fas fa-tag"></i>
+                                                        Category
+                                                        <span class="required-indicator">*</span>
+                                                    </label>
+                                                    <div class="d-flex gap-2">
+                                                        <select class="form-select" id="jobCategory" required>
+                                                            <option value="">Select a category</option>
+                                                        </select>
+                                                        <div class="category-buttons">
+                                                            <button type="button" class="btn btn-outline-primary" id="addCategoryBtn" title="Add new category">
+                                                                <i class="fas fa-plus"></i>
+                                                            </button>
+                                                            <button type="button" class="btn btn-outline-secondary" id="manageCategoriesBtn" title="Manage categories">
+                                                                <i class="fas fa-cog"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="enhanced-form-field">
+                                                    <label class="form-label">
+                                                        <i class="fas fa-chart-line"></i>
+                                                        Experience Level
+                                                        <span class="required-indicator">*</span>
+                                                    </label>
+                                                    <select class="form-select" id="jobExperience" required>
+                                                        <option value="">Select experience level</option>
+                                                        <option value="entry">Entry Level (0-2 years)</option>
+                                                        <option value="mid">Mid Level (2-5 years)</option>
+                                                        <option value="senior">Senior Level (5+ years)</option>
+                                                        <option value="lead">Lead/Manager (7+ years)</option>
+                                                    </select>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Experience Level</label>
-                                            <select class="form-select" id="jobExperience" required>
-                                                <option value="entry">Entry Level</option>
-                                                <option value="mid">Mid Level</option>
-                                                <option value="senior">Senior Level</option>
-                                                <option value="lead">Lead/Manager</option>
-                                            </select>
+
+                                        <!-- Skills Requirements Section -->
+                                        <div class="job-modal-section job-requirements-section">
+                                            <div class="section-header">
+                                                <div class="section-icon">
+                                                    <i class="fas fa-cogs"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="section-title">Required Skills</div>
+                                                    <div class="section-description">Add skills that candidates must have</div>
+                                                </div>
+                                            </div>
+                                            <div class="enhanced-form-field">
+                                                <label class="form-label">
+                                                    <i class="fas fa-keyboard"></i>
+                                                    Skills Input
+                                                    <span class="required-indicator">*</span>
+                                                </label>
+                                                <div class="skills-input-container">
+                                                    <div class="skills-input-wrapper">
+                                                        <input type="text" class="form-control" id="skillInput" placeholder="Type a skill and press Enter or comma">
+                                                    </div>
+                                                    <div id="skillTags" class="skill-tags"></div>
+                                                    <div class="skills-counter" id="skillsCounter">0 skills added</div>
+                                                </div>
+                                                <div class="field-help">
+                                                    <i class="fas fa-lightbulb"></i>
+                                                    Add at least 3-5 key skills for better candidate matching
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Job Description</label>
-                                            <textarea class="form-control" id="jobDescription" rows="5" required></textarea>
+
+                                        <!-- Job Description Section -->
+                                        <div class="job-modal-section">
+                                            <div class="job-modal-section-title">
+                                                <i class="fas fa-file-alt"></i>
+                                                Job Description
+                                            </div>
+                                            <div class="enhanced-form-field form-field-full">
+                                                <label class="form-label">
+                                                    <i class="fas fa-edit"></i>
+                                                    Description
+                                                    <span class="required-indicator">*</span>
+                                                </label>
+                                                <textarea class="form-control" id="jobDescription" rows="6" required placeholder="Describe the role, responsibilities, and what makes this position exciting..."></textarea>
+                                                <div class="field-help">
+                                                    <i class="fas fa-lightbulb"></i>
+                                                    Include key responsibilities, team culture, and growth opportunities
+                                                </div>
+                                            </div>
                                         </div>
                                     </form>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="button" class="btn btn-primary" id="saveJobBtn">Save Job</button>
+                                    <div class="progress-info">
+                                        <span id="formProgress">Complete all required fields</span>
+                                    </div>
+                                    <div class="action-buttons">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                            <i class="fas fa-times me-2"></i>Cancel
+                                        </button>
+                                        <button type="button" class="btn btn-primary" id="saveJobBtn">
+                                            <i class="fas fa-save me-2"></i>Save Job
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>

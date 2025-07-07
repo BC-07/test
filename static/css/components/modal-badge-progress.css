@@ -3,45 +3,181 @@
 .modal-content {
   background: var(--bg-primary);
   color: var(--text-primary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
+  border: none;
+  border-radius: var(--radius-xl);
   box-shadow: var(--shadow-xl);
+  overflow: hidden;
 }
 
 .modal-header {
   border-bottom: 1px solid var(--border-color);
-  padding: 1.5rem;
-  background: var(--bg-secondary);
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: 2rem 2rem 1.5rem;
+  background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));
+  position: relative;
+}
+
+.modal-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--gradient-primary);
 }
 
 .modal-header h4,
 .modal-header h5 {
   margin: 0;
   color: var(--text-primary);
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.modal-header h4::before,
+.modal-header h5::before {
+  content: '💼';
+  font-size: 1.25rem;
 }
 
 .modal-body {
-  padding: 1.5rem;
+  padding: 2rem;
   color: var(--text-primary);
+  max-height: 70vh;
+  overflow-y: auto;
 }
 
 .modal-footer {
   border-top: 1px solid var(--border-color);
-  padding: 1rem 1.5rem;
+  padding: 1.5rem 2rem;
   background: var(--bg-secondary);
-  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
   display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
 }
 
-/* Modal Backdrop */
-.modal-backdrop {
-  background-color: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+/* Job Modal Specific Styles */
+.job-modal-section {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid var(--primary-color);
+}
+
+.job-modal-section:last-child {
+  margin-bottom: 0;
+}
+
+.job-modal-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.job-modal-section-title i {
+  width: 24px;
+  height: 24px;
+  background: var(--primary-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.75rem;
+}
+
+/* Category Management Enhancement */
+.category-management-section {
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  margin-top: 0.75rem;
+}
+
+.category-buttons {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.category-buttons .btn {
+  padding: 0.5rem;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+}
+
+.category-buttons .btn i {
+  font-size: 0.875rem;
+}
+
+/* Modal Progress Indicator */
+.modal-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: var(--bg-tertiary);
+  overflow: hidden;
+}
+
+.modal-progress-bar {
+  height: 100%;
+  background: var(--gradient-primary);
+  width: 0%;
+  transition: width 0.3s ease;
+}
+
+/* Enhanced Form Layout in Modal */
+.modal-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.modal-form-grid .form-field-full {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 768px) {
+  .modal-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Modal Animation Enhancement */
+.modal.fade .modal-dialog {
+  transform: translateY(-30px) scale(0.95);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.modal.show .modal-dialog {
+  transform: translateY(0) scale(1);
+}
+
+/* Enhanced Modal Footer */
+.modal-footer .progress-info {
+  flex: 1;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.modal-footer .action-buttons {
+  display: flex;
+  gap: 0.75rem;
 }
 
 /* Badge Components */

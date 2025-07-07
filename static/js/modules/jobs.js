@@ -50,6 +50,16 @@ const JobsModule = {
             });
         }
 
+        // Form progress tracking
+        const formFields = ['jobTitle', 'jobDepartment', 'jobCategory', 'jobExperience', 'jobDescription'];
+        formFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.addEventListener('input', () => this.updateFormProgress());
+                field.addEventListener('change', () => this.updateFormProgress());
+            }
+        });
+
         // Save job button
         if (this.saveJobBtn) {
             this.saveJobBtn.addEventListener('click', async (e) => {
@@ -162,14 +172,27 @@ const JobsModule = {
         this.jobForm.reset();
         this.currentSkills.clear();
         this.updateSkillTags();
+        this.updateFormProgress();
         document.getElementById('jobModalTitle').textContent = 'Add New Job';
         this.jobForm.dataset.jobId = '';
+        
+        // Reset progress bar
+        const progressBar = document.querySelector('.modal-progress-bar');
+        if (progressBar) {
+            progressBar.style.width = '0%';
+        }
         
         // Refresh categories
         await this.loadJobCategories();
         
         // Show modal
         BootstrapInit.showModal('jobModal');
+        
+        // Focus on first field
+        setTimeout(() => {
+            const firstField = document.getElementById('jobTitle');
+            if (firstField) firstField.focus();
+        }, 300);
     },
 
     // Edit job
@@ -193,6 +216,7 @@ const JobsModule = {
             // Update skills
             this.currentSkills = new Set(job.requirements.split(',').map(s => s.trim()).filter(Boolean));
             this.updateSkillTags();
+            this.updateFormProgress();
 
             // Update modal
             document.getElementById('jobModalTitle').textContent = 'Edit Job';
@@ -297,14 +321,76 @@ const JobsModule = {
             </span>
         `).join('');
 
+        // Update skills counter
+        this.updateSkillsCounter();
+
         // Add click handlers for removing skills
         this.skillTags.querySelectorAll('.fa-times').forEach(icon => {
             icon.addEventListener('click', (e) => {
                 e.preventDefault();
-                this.currentSkills.delete(icon.dataset.skill);
-                this.updateSkillTags();
+                const skillTag = icon.closest('.skill-tag');
+                skillTag.classList.add('removing');
+                
+                setTimeout(() => {
+                    this.currentSkills.delete(icon.dataset.skill);
+                    this.updateSkillTags();
+                }, 200);
             });
         });
+
+        // Update form progress
+        this.updateFormProgress();
+    },
+
+    // Update skills counter
+    updateSkillsCounter() {
+        const counter = document.getElementById('skillsCounter');
+        if (!counter) return;
+
+        const count = this.currentSkills.size;
+        counter.textContent = `${count} skill${count !== 1 ? 's' : ''} added`;
+        
+        if (count === 0) {
+            counter.className = 'skills-counter error';
+        } else if (count < 3) {
+            counter.className = 'skills-counter warning';
+        } else {
+            counter.className = 'skills-counter';
+        }
+    },
+
+    // Update form progress
+    updateFormProgress() {
+        const progressInfo = document.getElementById('formProgress');
+        const progressBar = document.querySelector('.modal-progress-bar');
+        
+        if (!progressInfo || !progressBar) return;
+
+        const title = document.getElementById('jobTitle').value.trim();
+        const department = document.getElementById('jobDepartment').value.trim();
+        const category = document.getElementById('jobCategory').value.trim();
+        const experience = document.getElementById('jobExperience').value.trim();
+        const description = document.getElementById('jobDescription').value.trim();
+        const skillsCount = this.currentSkills.size;
+
+        const fields = [title, department, category, experience, description].filter(Boolean);
+        const progress = ((fields.length + (skillsCount > 0 ? 1 : 0)) / 6) * 100;
+
+        progressBar.style.width = `${progress}%`;
+
+        if (progress === 100) {
+            progressInfo.innerHTML = '<i class="fas fa-check-circle text-success me-1"></i>Ready to save';
+        } else {
+            const missing = [];
+            if (!title) missing.push('job title');
+            if (!department) missing.push('department');
+            if (!category) missing.push('category');
+            if (!experience) missing.push('experience level');
+            if (skillsCount === 0) missing.push('required skills');
+            if (!description) missing.push('description');
+            
+            progressInfo.innerHTML = `<i class="fas fa-info-circle text-warning me-1"></i>Missing: ${missing.join(', ')}`;
+        }
     },
 
     // Load job categories
