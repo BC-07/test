@@ -1,0 +1,467 @@
+/* Candidates Page Styles */
+
+/* Job Section Layout */
+.job-section {
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
+}
+
+.job-section:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.job-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.job-title {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.job-title i {
+  margin-right: 0.75rem;
+  color: var(--primary-color);
+}
+
+.job-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.candidate-count {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.job-description {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.job-description p {
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.job-requirements {
+  color: var(--text-primary);
+  font-weight: 500;
+  margin-bottom: 0;
+}
+
+[data-theme="dark"] .job-requirements {
+  color: var(--text-secondary);
+}
+
+/* Candidates Table Container */
+.candidates-table-container {
+  overflow: hidden;
+}
+
+/* No Candidates Message */
+.no-candidates-message {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: var(--bg-secondary);
+  margin: 2rem;
+  border-radius: var(--radius-lg);
+}
+
+.no-candidates-icon {
+  width: 80px;
+  height: 80px;
+  background: var(--bg-tertiary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  color: var(--text-muted);
+  font-size: 2.5rem;
+}
+
+.no-candidates-message h4 {
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.no-candidates-message p {
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+/* Skill Tags for Candidates */
+.skill-tag {
+  background: #bae6fd;
+  color: #0369a1;
+  border-radius: 2rem;
+  padding: 0.35rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  transition: all var(--transition-normal);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  margin: 0.125rem;
+}
+
+[data-theme="dark"] .skill-tag {
+  background: rgba(67, 97, 238, 0.15);
+  color: var(--primary-color);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.skill-tag:hover {
+  background: #7dd3fc;
+  transform: translateY(-2px);
+}
+
+[data-theme="dark"] .skill-tag:hover {
+  background: rgba(67, 97, 238, 0.2);
+  transform: translateY(-2px);
+}
+
+.skill-tag i {
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity var(--transition-fast);
+  margin-left: 0.5rem;
+}
+
+.skill-tag i:hover {
+  opacity: 1;
+}
+
+/* Job Skills Container */
+.job-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+/* Modal Skill Badges */
+.skill-badge {
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin: 0.125rem;
+  display: inline-block;
+}
+
+.skill-badge.bg-success {
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: var(--success-color) !important;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.skill-badge.bg-danger {
+  background: rgba(239, 68, 68, 0.15) !important;
+  color: var(--danger-color) !important;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Education Items */
+.education-item {
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  margin-bottom: 1rem;
+  transition: all var(--transition-fast);
+}
+
+.education-item:hover {
+  background: var(--bg-tertiary);
+}
+
+.education-item:last-child {
+  margin-bottom: 0;
+}
+
+.education-item h6 {
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.education-item .text-muted {
+  color: var(--text-secondary) !important;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.education-item p {
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+[data-theme="dark"] .education-item {
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .education-item:hover {
+  background: rgba(51, 65, 85, 0.8);
+}
+
+/* Category Prediction Styles */
+.category-prediction {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.confidence-score {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+[data-theme="dark"] .category-prediction {
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
+}
+
+/* Candidate Avatars/Initials */
+.candidate-avatar {
+  width: 40px;
+  height: 40px;
+  background: var(--gradient-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+  margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+/* Candidate Cards for Grid View */
+.candidate-card {
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  transition: all var(--transition-normal);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.candidate-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-color);
+}
+
+.candidate-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+}
+
+.candidate-info {
+  flex: 1;
+}
+
+.candidate-info h4 {
+  margin: 0 0 0.25rem 0;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.candidate-info p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.candidate-body {
+  padding: 1.5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.candidate-skills {
+  margin-bottom: 1rem;
+}
+
+.candidate-footer {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.candidate-score {
+  text-align: center;
+}
+
+.candidate-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Score Circle for Modal */
+.score-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  position: relative;
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+.score-circle.score-excellent {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--success-color);
+  border: 3px solid var(--success-color);
+}
+
+.score-circle.score-good {
+  background: rgba(37, 99, 235, 0.15);
+  color: var(--primary-color);
+  border: 3px solid var(--primary-color);
+}
+
+.score-circle.score-fair {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--warning-color);
+  border: 3px solid var(--warning-color);
+}
+
+.score-circle.score-poor {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--danger-color);
+  border: 3px solid var(--danger-color);
+}
+
+/* Container for skills and education in modal */
+.skills-container,
+.education-container,
+.matched-skills-container,
+.missing-skills-container {
+  margin-bottom: 1.5rem;
+}
+
+.skills-container:last-child,
+.education-container:last-child,
+.matched-skills-container:last-child,
+.missing-skills-container:last-child {
+  margin-bottom: 0;
+}
+
+/* Responsive Candidates Design */
+@media (max-width: 768px) {
+  .job-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .job-meta {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .job-description,
+  .job-header {
+    padding: 1rem 1.5rem;
+  }
+  
+  .no-candidates-message {
+    padding: 3rem 1.5rem;
+    margin: 1rem;
+  }
+  
+  .no-candidates-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 2rem;
+  }
+  
+  .candidate-header {
+    padding: 1rem;
+  }
+  
+  .candidate-body {
+    padding: 1rem;
+  }
+  
+  .score-circle {
+    width: 60px;
+    height: 60px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .job-title {
+    font-size: 1.25rem;
+  }
+  
+  .job-title i {
+    margin-right: 0.5rem;
+  }
+  
+  .job-skills {
+    gap: 0.5rem;
+  }
+  
+  .skill-tag {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+  }
+  
+  .education-item {
+    padding: 0.75rem;
+  }
+  
+  .candidate-footer {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+  
+  .candidate-actions {
+    justify-content: center;
+  }
+}
