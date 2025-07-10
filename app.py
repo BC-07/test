@@ -355,7 +355,6 @@ class ResumeScreeningApp:
                     if not data.get(field):
                         return jsonify({'success': False, 'error': f'{field} is required'}), 400
                 
-<<<<<<< HEAD
                 # Convert category name to category_id
                 category_name = data['category']
                 categories = db_manager.get_all_job_categories()
@@ -381,10 +380,6 @@ class ResumeScreeningApp:
                 
                 # Create new job
                 job_id = db_manager.create_job(job_data)
-=======
-                # Create new job
-                job_id = db_manager.create_job(data)
->>>>>>> a8c34b926cecbcf857975f517ff3f27d76e3c540
                 job = db_manager.get_job(job_id)
                 
                 return jsonify({
@@ -412,7 +407,6 @@ class ResumeScreeningApp:
         elif request.method == 'PUT':
             try:
                 data = request.get_json()
-<<<<<<< HEAD
                 
                 # Convert category name to category_id if category is provided
                 if 'category' in data:
@@ -433,8 +427,6 @@ class ResumeScreeningApp:
                     del data['category']
                     data['category_id'] = category_id
                 
-=======
->>>>>>> a8c34b926cecbcf857975f517ff3f27d76e3c540
                 success = db_manager.update_job(job_id, data)
                 
                 if not success:
