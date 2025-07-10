@@ -27,23 +27,51 @@ class ResumeScreeningApp:
         # Get absolute paths
         base_dir = os.path.abspath(os.path.dirname(__file__))
         
+        # PostgreSQL Configuration
+        self.app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+        self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        self.app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-default-secret-key')
+        
+        # Initialize Flask-SQLAlchemy
+        try:
+            from models import db
+            db.init_app(self.app)
+            
+            # Create tables if they don't exist
+            with self.app.app_context():
+                db.create_all()
+                logger.info("Flask-SQLAlchemy tables created successfully")
+        except Exception as e:
+            logger.warning(f"Flask-SQLAlchemy initialization failed: {e}")
+            logger.info("Continuing with custom DatabaseManager...")
+        
         # Configuration
         self.app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
         self.app.config['UPLOAD_FOLDER'] = os.path.join(base_dir, 'temp_uploads')
         
-        # Ensure directories exist
-        os.makedirs(self.app.config['UPLOAD_FOLDER'], exist_ok=True)
-        
-        # Initialize models
-        self._load_models()
-        
         # Initialize resume processor
         self.resume_processor = ResumeProcessor()
         
-        # Register routes
+        # Load ML models
+        self._load_models()
+        
+        # Register routes and error handlers - ADD THESE LINES
         self._register_routes()
         self._register_error_handlers()
+        
+        # Add basic routes for testing - ADD THESE LINES
+        @self.app.route('/')
+        def home():
+            return "Welcome to ResuAI! Your application is running correctly."
+        
+        @self.app.route('/routes')
+        def list_routes():
+            routes = []
+            for rule in self.app.url_map.iter_rules():
+                routes.append(f"{rule.endpoint}: {rule.rule}")
+            return "<br>".join(routes)
     
+
     def _load_models(self):
         """Load pre-trained models"""
         try:
@@ -185,16 +213,12 @@ class ResumeScreeningApp:
                             'name': result.get('name', 'Unknown'),
                             'email': result.get('email', ''),
                             'phone': result.get('phone', ''),
+                            'resume_text': text,  # Add the resume text
                             'education': result.get('education', []),
-                            'all_skills': result.get('allSkills', []),
-                            'filename': file.filename,
+                            'skills': ', '.join(result.get('allSkills', [])),  # Convert to comma-separated string
                             'job_id': job_id,
-                            'job_title': job['title'],
-                            'category': job['category'],
-                            'predicted_category': result.get('predictedCategory', {'category': 'Unknown', 'confidence': 0}),
+                            'category': result.get('predictedCategory', {}).get('category', 'Unknown'),
                             'score': result['matchScore'],
-                            'matched_skills': result['matchedSkills'],
-                            'missing_skills': result['missingSkills'],
                             'status': 'pending'
                         }
                         
@@ -535,12 +559,11 @@ class ResumeScreeningApp:
                         education_str = "Not specified"
                     
                     # Format skills as string
-                    all_skills = candidate.get('all_skills', [])
-                    skills_str = ", ".join(all_skills[:10]) + ("..." if len(all_skills) > 10 else "") if all_skills else "Not specified"
+                    skills_list = candidate.get('skills', [])
+                    skills_str = ", ".join(skills_list[:10]) + ("..." if len(skills_list) > 10 else "") if skills_list else "Not specified"
                     
-                    # Format predicted category
-                    pred_cat = candidate.get('predicted_category', {})
-                    predicted_category_str = f"{pred_cat.get('category', 'Unknown')} ({pred_cat.get('confidence', 0)}%)"
+                    # Format predicted category - handle if it's stored as a simple string
+                    predicted_category_str = candidate.get('category', 'Unknown')
                     
                     formatted_candidate = {
                         'id': candidate['id'],
@@ -549,16 +572,12 @@ class ResumeScreeningApp:
                         'phone': candidate['phone'],
                         'education': education_str,
                         'skills': skills_str,
-                        'all_skills': all_skills,
+                        'all_skills': skills_list,
                         'predicted_category': predicted_category_str,
-                        'predicted_category_raw': pred_cat,
                         'score': candidate['score'],
                         'status': candidate['status'],
-                        'filename': candidate['filename'],
-                        'matched_skills': candidate.get('matched_skills', []),
-                        'missing_skills': candidate.get('missing_skills', []),
-                        'created_at': candidate['created_at'],
-                        'updated_at': candidate['updated_at']
+                        'created_at': candidate['created_at'].isoformat() if candidate.get('created_at') else None,
+                        'updated_at': candidate['updated_at'].isoformat() if candidate.get('updated_at') else None
                     }
                     
                     candidates_by_job[job_id]['candidates'].append(formatted_candidate)
