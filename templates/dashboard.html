@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Resume Screening AI</title>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/static/css/base.css" as="style">
+    <link rel="preload" href="/static/js/dashboard.js" as="script">
+    
+    <!-- Meta tags -->
+    <meta name="description" content="Resume screening dashboard - Upload and analyze resumes with AI">
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- Favicon                         <button class="btn btn-primary add-job-btn" id="addJobBtn">
+                            <i class="fas fa-plus"></i>
+                            Add New Job
+                        </button>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+    
+    <!-- External CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Modular CSS - Base and Layout First -->
+    <link rel="stylesheet" href="/static/css/base.css">
+    <link rel="stylesheet" href="/static/css/layout.css">
+    
+    <!-- Component CSS -->
+    <link rel="stylesheet" href="/static/css/components/buttons.css">
+    <link rel="stylesheet" href="/static/css/components/cards.css">
+    <link rel="stylesheet" href="/static/css/components/forms.css">
+    <link rel="stylesheet" href="/static/css/components/tables.css">
+    <link rel="stylesheet" href="/static/css/components/navigation.css">
+    <link rel="stylesheet" href="/static/css/components/modal-badge-progress.css">
+    <link rel="stylesheet" href="/static/css/components/notifications-lists.css">
+    <link rel="stylesheet" href="/static/css/components/job-components.css">
+    
+    <!-- Page-specific CSS -->
+    <link rel="stylesheet" href="/static/css/pages/dashboard.css">
+    <link rel="stylesheet" href="/static/css/pages/upload.css">
+    <link rel="stylesheet" href="/static/css/pages/candidates.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a class="brand" href="/">
+                    <i class="fas fa-robot"></i>
+                    <span class="brand-text">Resume AI</span>
+                </a>
+                <button id="sidebarToggle" class="sidebar-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <span class="nav-section-title">Main</span>
+                    <a href="#dashboard" class="nav-link active" data-section="dashboard">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#upload" class="nav-link" data-section="upload">
+                        <i class="fas fa-upload"></i>
+                        <span>Upload Resume</span>
+                    </a>
+                    <a href="#candidates" class="nav-link" data-section="candidates">
+                        <i class="fas fa-users"></i>
+                        <span>Candidates</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <span class="nav-section-title">Management</span>
+                    <a href="#analytics" class="nav-link" data-section="analytics">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </a>
+                    <a href="#jobs" class="nav-link" data-section="jobs">
+                        <i class="fas fa-briefcase"></i>
+                        <span>Job Requirements</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <span class="nav-section-title">Account</span>
+                    <a href="#settings" class="nav-link" data-section="settings">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button id="themeToggle" class="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="user-info">
+                    <div class="user-details">
+                        <span class="user-name">Mark Johnson</span>
+                        <span class="user-role">HR Manager</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <!-- Floating Sidebar Toggle (appears when sidebar is collapsed) -->
+            <button id="floatingSidebarToggle" class="floating-sidebar-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <!-- Top Bar -->
+            <header class="top-bar">
+                <div class="top-bar-left">
+                    <h1 class="page-title" id="sectionTitle">Dashboard</h1>
+                </div>
+                <div class="top-bar-right">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search candidates, jobs...">
+                    </div>
+                    <div class="top-bar-actions">
+                        <button class="btn-icon" title="Notifications">
+                            <i class="fas fa-bell"></i>
+                            <span class="badge">3</span>
+                        </button>
+                        <button class="btn-icon" title="Help">
+                            <i class="fas fa-question-circle"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dynamic Content Container -->
+            <div class="content-container" id="contentContainer">
+                <!-- Dashboard Section -->
+                <section id="dashboardSection" class="content-section active">
+                    <div class="dashboard-grid">
+                        <!-- Stats Cards -->
+                        <div class="stats-row">
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-file-alt"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 id="totalResumes">0</h3>
+                                    <p>Total Resumes</p>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 id="screenedResumes">0</h3>
+                                    <p>Screened</p>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 id="shortlisted">0</h3>
+                                    <p>Shortlisted</p>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 id="avgScreeningTime">0m</h3>
+                                    <p>Avg. Screening Time</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Activity & Top Candidates -->
+                        <div class="dashboard-row">
+                            <div class="dashboard-col">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h2>Recent Activity</h2>
+                                        <button class="btn-text">View All</button>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="activity-list" id="activityList">
+                                            <!-- Activity items will be dynamically added here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="dashboard-col">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h2>Top Candidates</h2>
+                                        <button class="btn-text">View All</button>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="candidates-list" id="topCandidates">
+                                            <!-- Candidate items will be dynamically added here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Job Categories Overview -->
+                        <div class="dashboard-row">
+                            <div class="card full-width">
+                                <div class="card-header">
+                                    <h2>Job Categories Overview</h2>
+                                    <button class="btn-text">Manage Categories</button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="job-categories-grid" id="jobCategoriesGrid">
+                                        <!-- Job category cards will be dynamically added here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Upload Resume Section -->
+                <section id="uploadSection" class="content-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-upload me-2"></i>Upload Resumes</h2>
+                        <p class="section-description">Upload and analyze resumes against job requirements with AI-powered screening</p>
+                    </div>
+
+                    <div class="upload-workflow">
+                        <!-- Step 1: Job Selection -->
+                        <div class="upload-step animate-fade-in-up" id="jobSelectionStep">
+                            <div class="step-header">
+                                <div class="step-number">
+                                    <span class="step-count">1</span>
+                                </div>
+                                <div class="step-info">
+                                    <h3>Select Target Job</h3>
+                                    <p>Choose the job position to screen resumes against</p>
+                                </div>
+                            </div>
+                            
+                            <div class="job-selection-container">
+                                <div class="job-categories-grid" id="jobCategoriesUpload">
+                                    <!-- Job categories will be dynamically loaded here -->
+                                </div>
+                            </div>
+
+                            <!-- Selected Job Preview -->
+                            <div class="selected-job-preview animate-fade-in-up" id="selectedJobDetails" style="display: none;">
+                                <div class="preview-card">
+                                    <div class="preview-header">
+                                        <h4><i class="fas fa-check-circle text-success me-2"></i>Selected Job</h4>
+                                        <button class="btn btn-outline-secondary btn-sm" onclick="clearJobSelection()">
+                                            <i class="fas fa-times"></i> Change
+                                        </button>
+                                    </div>
+                                    <div class="preview-content">
+                                        <div class="job-title"></div>
+                                        <div class="job-description"></div>
+                                        <div class="required-skills"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Resume Upload -->
+                        <div class="upload-step" id="resumeUploadStep">
+                            <div class="step-header">
+                                <div class="step-number">
+                                    <span class="step-count">2</span>
+                                </div>
+                                <div class="step-info">
+                                    <h3>Upload Resumes</h3>
+                                    <p>Drag and drop or browse to select resume files</p>
+                                </div>
+                            </div>
+
+                            <div class="upload-container">
+                                <div class="upload-area" id="uploadArea">
+                                    <div class="upload-instructions" id="uploadInstructions">
+                                        <div class="instruction-icon">
+                                            <i class="fas fa-arrow-up"></i>
+                                        </div>
+                                        <h4>Please select a job first</h4>
+                                        <p>Choose a target job position to enable resume upload</p>
+                                    </div>
+                                    
+                                    <div class="upload-zone" id="uploadZone" style="display: none; cursor: pointer;" onclick="triggerFileUpload()">
+                                        <div class="upload-content">
+                                            <div class="upload-icon">
+                                                <i class="fas fa-cloud-upload-alt"></i>
+                                            </div>
+                                            <h4>Drop resumes here</h4>
+                                            <p>or <span class="browse-link" onclick="triggerFileUpload()" style="cursor: pointer; color: #007bff; text-decoration: underline;">click to browse</span></p>
+                                            <div class="upload-info">
+                                                <span class="supported-formats">
+                                                    <i class="fas fa-file-pdf text-danger"></i>
+                                                    <i class="fas fa-file-word text-primary"></i>
+                                                    <i class="fas fa-file-alt text-secondary"></i>
+                                                    PDF, DOCX, TXT (Max 16MB each)
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <input type="file" id="resumeUpload" multiple accept=".pdf,.docx,.txt" hidden>
+                                    </div>
+
+                                    <!-- File Preview -->
+                                    <div id="uploadPreview" class="upload-preview">
+                                        <!-- Files will appear here -->
+                                    </div>
+                                </div>
+
+                                <!-- Upload Actions -->
+                                <div class="upload-actions" id="uploadActions" style="display: none;">
+                                    <div class="action-buttons">
+                                        <button id="clearFilesBtn" class="btn btn-outline-secondary">
+                                            <i class="fas fa-trash me-2"></i>Clear All
+                                        </button>
+                                        <button id="startUploadBtn" class="btn btn-primary btn-lg" disabled>
+                                            <i class="fas fa-rocket me-2"></i>
+                                            <span>Start Analysis</span>
+                                            <div class="btn-loader" style="display: none;">
+                                                <i class="fas fa-spinner fa-spin"></i>
+                                            </div>
+                                        </button>
+                                    </div>
+                                    <div class="upload-stats">
+                                        <span id="fileCount">0 files selected</span>
+                                        <span id="totalSize">0 MB</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Results -->
+                        <div class="upload-step" id="resultsStep" style="display: none;">
+                            <div class="step-header">
+                                <div class="step-number">
+                                    <span class="step-count">3</span>
+                                </div>
+                                <div class="step-info">
+                                    <h3>Analysis Results</h3>
+                                    <p>Review and manage the screening results</p>
+                                </div>
+                            </div>
+
+                            <div class="results-container">
+                                <div class="results-header">
+                                    <div class="results-summary">
+                                        <div class="summary-stat">
+                                            <span class="stat-number" id="processedCount">0</span>
+                                            <span class="stat-label">Processed</span>
+                                        </div>
+                                        <div class="summary-stat">
+                                            <span class="stat-number" id="avgScore">0%</span>
+                                            <span class="stat-label">Avg Score</span>
+                                        </div>
+                                        <div class="summary-stat">
+                                            <span class="stat-number" id="topCandidates">0</span>
+                                            <span class="stat-label">Top Matches</span>
+                                        </div>
+                                    </div>
+                                    <div class="results-actions">
+                                        <button class="btn btn-outline-primary" id="exportResults">
+                                            <i class="fas fa-download me-2"></i>Export Results
+                                        </button>
+                                        <button class="btn btn-primary" id="viewCandidates">
+                                            <i class="fas fa-users me-2"></i>View All Candidates
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="results-list" id="rankingResults">
+                                    <!-- Results will be displayed here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Candidates Section -->
+                <section id="candidatesSection" class="content-section">
+                    <div class="section-header">
+                        <h2>Candidates by Job Categories</h2>
+                        <div class="section-actions">
+                            <button class="btn btn-outline-primary" id="refreshCandidates">
+                                <i class="fas fa-sync me-2"></i>Refresh
+                            </button>
+                            <button class="btn btn-outline-primary" id="exportCandidates">
+                                <i class="fas fa-download me-2"></i>Export
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="candidates-content" id="candidatesContent">
+                        <!-- Job categories and candidates tables will be loaded dynamically -->
+                    </div>
+
+                    <!-- Candidate Details Modal -->
+                    <div class="modal fade" id="candidateDetailsModal" tabindex="-1" aria-labelledby="candidateDetailsModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-xl">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="candidateDetailsModalLabel">Candidate Details</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="candidate-profile">
+                                        <div class="profile-header">
+                                            <div class="profile-image">
+                                                <i class="fas fa-user-circle"></i>
+                                            </div>
+                                            <div class="profile-info">
+                                                <h3 class="candidate-name"></h3>
+                                                <div class="candidate-contact">
+                                                    <span class="email"></span>
+                                                    <span class="phone"></span>
+                                                </div>
+                                            </div>
+                                            <div class="match-score">
+                                                <div class="score-circle">
+                                                    <span class="score-value"></span>
+                                                </div>
+                                                <span class="score-label">Match Score</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="profile-sections">
+                                            <div class="section skills-section">
+                                                <h4><i class="fas fa-tools"></i> All Skills</h4>
+                                                <div class="skills-container"></div>
+                                            </div>
+                                            
+                                            <div class="section education-section">
+                                                <h4><i class="fas fa-graduation-cap"></i> Education</h4>
+                                                <div class="education-container"></div>
+                                            </div>
+                                            
+                                            <div class="section matched-skills-section">
+                                                <h4><i class="fas fa-check-circle text-success"></i> Matched Skills</h4>
+                                                <div class="matched-skills-container"></div>
+                                            </div>
+                                            
+                                            <div class="section missing-skills-section">
+                                                <h4><i class="fas fa-times-circle text-danger"></i> Missing Skills</h4>
+                                                <div class="missing-skills-container"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-danger" id="removeCandidate">
+                                        <i class="fas fa-trash-alt"></i> Remove
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-warning" id="rejectCandidate">
+                                        <i class="fas fa-times"></i> Reject
+                                    </button>
+                                    <button type="button" class="btn btn-success" id="shortlistCandidate">
+                                        <i class="fas fa-star"></i> Shortlist
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Analytics Section -->
+                <section id="analyticsSection" class="content-section">
+                    <div class="section-header">
+                        <h2>Analytics Dashboard</h2>
+                        <div class="section-actions">
+                            <div class="date-range-picker">
+                                <i class="fas fa-calendar me-2"></i>
+                                <select id="dateRange" class="form-select">
+                                    <option value="7">Last 7 days</option>
+                                    <option value="30">Last 30 days</option>
+                                    <option value="90">Last 90 days</option>
+                                    <option value="365">Last year</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="analytics-grid">
+                        <!-- Metrics Cards -->
+                        <div class="metrics-row">
+                            <div class="metric-card">
+                                <div class="metric-icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <div class="metric-content">
+                                    <h3 id="totalCandidates">0</h3>
+                                    <p>Total Candidates</p>
+                                    <span class="metric-trend positive">
+                                        <i class="fas fa-arrow-up"></i> 12%
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-icon">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div class="metric-content">
+                                    <h3 id="conversionRate">0%</h3>
+                                    <p>Conversion Rate</p>
+                                    <span class="metric-trend positive">
+                                        <i class="fas fa-arrow-up"></i> 5%
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="metric-content">
+                                    <h3 id="avgTimeToHire">0</h3>
+                                    <p>Avg. Time to Hire</p>
+                                    <span class="metric-trend negative">
+                                        <i class="fas fa-arrow-down"></i> 2 days
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-icon">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <div class="metric-content">
+                                    <h3 id="qualityOfHire">0%</h3>
+                                    <p>Quality of Hire</p>
+                                    <span class="metric-trend positive">
+                                        <i class="fas fa-arrow-up"></i> 8%
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Charts -->
+                        <div class="charts-grid">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>Candidate Flow</h3>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="candidateFlowChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>Top Job Categories</h3>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="jobCategoriesChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Detailed Metrics -->
+                        <div class="metrics-table card">
+                            <div class="card-header">
+                                <h3>Recruitment Metrics</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Metric</th>
+                                                <th>Current</th>
+                                                <th>Previous</th>
+                                                <th>Change</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="metricsTableBody">
+                                            <!-- Metrics will be loaded dynamically -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Job Requirements Section -->
+                <section id="jobsSection" class="content-section">
+                    <div class="section-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2><i class="fas fa-briefcase me-2"></i>Job Requirements</h2>
+                            <p class="section-description">Manage job positions and requirements for resume screening</p>
+                        </div>
+                        <div class="section-actions d-flex gap-2">
+                            <button class="btn btn-outline-info" id="bulkExportBtn" title="Export all jobs as PDF">
+                                <i class="fas fa-file-export me-2"></i>Bulk Export
+                            </button>
+                            <button class="btn btn-primary add-job-btn" id="addJobBtn">
+                                <i class="fas fa-plus"></i>
+                                Add New Job
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="jobs-grid" id="jobsGrid">
+                        <!-- Job cards will be loaded dynamically -->
+                    </div>
+
+                    <!-- Add/Edit Job Modal -->
+                    <div class="modal fade" id="jobModal" tabindex="-1">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-progress">
+                                    <div class="modal-progress-bar"></div>
+                                </div>
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="jobModalTitle">Add New Job</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="jobForm">
+                                        <!-- Basic Information Section -->
+                                        <div class="job-modal-section">
+                                            <div class="job-modal-section-title">
+                                                <i class="fas fa-info-circle"></i>
+                                                Basic Information
+                                            </div>
+                                            <div class="modal-form-grid">
+                                                <div class="enhanced-form-field">
+                                                    <label class="form-label">
+                                                        <i class="fas fa-briefcase"></i>
+                                                        Job Title
+                                                        <span class="required-indicator">*</span>
+                                                    </label>
+                                                    <input type="text" class="form-control" id="jobTitle" required placeholder="e.g. Senior Software Engineer">
+                                                    <div class="field-help">
+                                                        <i class="fas fa-lightbulb"></i>
+                                                        Make it specific and descriptive
+                                                    </div>
+                                                </div>
+                                                <div class="enhanced-form-field">
+                                                    <label class="form-label">
+                                                        <i class="fas fa-building"></i>
+                                                        Department
+                                                        <span class="required-indicator">*</span>
+                                                    </label>
+                                                    <input type="text" class="form-control" id="jobDepartment" required placeholder="e.g. Engineering">
+                                                    <div class="field-help">
+                                                        <i class="fas fa-lightbulb"></i>
+                                                        Which team will this person join?
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Category & Experience Section -->
+                                        <div class="job-modal-section">
+                                            <div class="job-modal-section-title">
+                                                <i class="fas fa-tags"></i>
+                                                Category & Experience
+                                            </div>
+                                            <div class="modal-form-grid">
+                                                <div class="enhanced-form-field">
+                                                    <label class="form-label">
+                                                        <i class="fas fa-tag"></i>
+                                                        Category
+                                                        <span class="required-indicator">*</span>
+                                                    </label>
+                                                    <div class="d-flex gap-2">
+                                                        <select class="form-select" id="jobCategory" required>
+                                                            <option value="">Select a category</option>
+                                                        </select>
+                                                        <div class="category-buttons">
+                                                            <button type="button" class="btn btn-outline-primary" id="addCategoryBtn" title="Add new category">
+                                                                <i class="fas fa-plus"></i>
+                                                            </button>
+                                                            <button type="button" class="btn btn-outline-secondary" id="manageCategoriesBtn" title="Manage categories">
+                                                                <i class="fas fa-cog"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="enhanced-form-field">
+                                                    <label class="form-label">
+                                                        <i class="fas fa-chart-line"></i>
+                                                        Experience Level
+                                                        <span class="required-indicator">*</span>
+                                                    </label>
+                                                    <select class="form-select" id="jobExperience" required>
+                                                        <option value="">Select experience level</option>
+                                                        <option value="entry">Entry Level (0-2 years)</option>
+                                                        <option value="mid">Mid Level (2-5 years)</option>
+                                                        <option value="senior">Senior Level (5+ years)</option>
+                                                        <option value="lead">Lead/Manager (7+ years)</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Skills Requirements Section -->
+                                        <div class="job-modal-section job-requirements-section">
+                                            <div class="section-header">
+                                                <div class="section-icon">
+                                                    <i class="fas fa-cogs"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="section-title">Required Skills</div>
+                                                    <div class="section-description">Add skills that candidates must have</div>
+                                                </div>
+                                            </div>
+                                            <div class="enhanced-form-field">
+                                                <label class="form-label">
+                                                    <i class="fas fa-keyboard"></i>
+                                                    Skills Input
+                                                    <span class="required-indicator">*</span>
+                                                </label>
+                                                <div class="skills-input-container">
+                                                    <div class="skills-input-wrapper">
+                                                        <input type="text" class="form-control" id="skillInput" placeholder="Type a skill and press Enter or comma">
+                                                    </div>
+                                                    <div id="skillTags" class="skill-tags"></div>
+                                                    <div class="skills-counter" id="skillsCounter">0 skills added</div>
+                                                </div>
+                                                <div class="field-help">
+                                                    <i class="fas fa-lightbulb"></i>
+                                                    Add at least 3-5 key skills for better candidate matching
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Job Description Section -->
+                                        <div class="job-modal-section">
+                                            <div class="job-modal-section-title">
+                                                <i class="fas fa-file-alt"></i>
+                                                Job Description
+                                            </div>
+                                            <div class="enhanced-form-field form-field-full">
+                                                <label class="form-label">
+                                                    <i class="fas fa-edit"></i>
+                                                    Description
+                                                    <span class="required-indicator">*</span>
+                                                </label>
+                                                <textarea class="form-control" id="jobDescription" rows="6" required placeholder="Describe the role, responsibilities, and what makes this position exciting..."></textarea>
+                                                <div class="field-help">
+                                                    <i class="fas fa-lightbulb"></i>
+                                                    Include key responsibilities, team culture, and growth opportunities
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <div class="progress-info">
+                                        <span id="formProgress">Complete all required fields</span>
+                                    </div>
+                                    <div class="action-buttons">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                            <i class="fas fa-times me-2"></i>Cancel
+                                        </button>
+                                        <button type="button" class="btn btn-primary" id="saveJobBtn">
+                                            <i class="fas fa-save me-2"></i>Save Job
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add Category Modal -->
+                    <div class="modal fade" id="categoryModal" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Add New Category</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="categoryForm">
+                                        <div class="mb-3">
+                                            <label class="form-label">Category Name</label>
+                                            <input type="text" class="form-control" id="categoryName" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Description</label>
+                                            <textarea class="form-control" id="categoryDescription" rows="3"></textarea>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="button" class="btn btn-primary" id="saveCategoryBtn">Save Category</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Settings Section -->
+                <section id="settingsSection" class="content-section">
+                    <div class="section-header">
+                        <h2>Settings</h2>
+                    </div>
+
+                    <div class="settings-grid">
+                        <!-- Profile Settings -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Profile Settings</h3>
+                            </div>
+                            <div class="card-body">
+                                <form id="profileForm">
+                                    <div class="mb-3">
+                                        <label class="form-label">Name</label>
+                                        <input type="text" class="form-control" id="settingsName" value="Mark Johnson">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="settingsEmail" value="mark@example.com">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Role</label>
+                                        <input type="text" class="form-control" id="settingsRole" value="HR Manager" readonly>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Notification Settings -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Notification Settings</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="notification-settings">
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                                        <label class="form-check-label">Email Notifications</label>
+                                    </div>
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="newCandidateAlerts" checked>
+                                        <label class="form-check-label">New Candidate Alerts</label>
+                                    </div>
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="weeklyReports">
+                                        <label class="form-check-label">Weekly Reports</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Integration Settings -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Integrations</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="integration-list">
+                                    <div class="integration-item">
+                                        <div class="integration-info">
+                                            <i class="fab fa-slack"></i>
+                                            <div>
+                                                <h4>Slack</h4>
+                                                <p>Connected to #hr-notifications</p>
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-outline-danger btn-sm">Disconnect</button>
+                                    </div>
+                                    <div class="integration-item">
+                                        <div class="integration-info">
+                                            <i class="fab fa-trello"></i>
+                                            <div>
+                                                <h4>Trello</h4>
+                                                <p>Not connected</p>
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-outline-primary btn-sm">Connect</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container">
+        <div id="successToast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="fas fa-check-circle text-success"></i>
+                <strong>Success</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body"></div>
+        </div>
+        
+        <div id="errorToast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="fas fa-exclamation-circle text-danger"></i>
+                <strong>Error</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Configuration and utilities must load first -->
+    <script src="/static/js/config.js"></script>
+    <script src="/static/js/utils/dom.js"></script>
+    <script src="/static/js/utils/format.js"></script>
+    <script src="/static/js/utils/toast.js"></script>
+    <script src="/static/js/utils/validation.js"></script>
+    
+    <!-- Services -->
+    <script src="/static/js/services/storage.js"></script>
+    <script src="/static/js/services/api.js"></script>
+    
+    <!-- Components -->
+    <script src="/static/js/components/bootstrap-init.js"></script>
+    <script src="/static/js/components/theme.js"></script>
+    
+    <!-- Modules -->
+    <script src="/static/js/modules/navigation.js"></script>
+    <script src="/static/js/modules/upload.js"></script>
+    <script src="/static/js/modules/jobs.js"></script>
+    <script src="/static/js/modules/job-export.js"></script>
+    <script src="/static/js/modules/candidates.js"></script>
+    <script src="/static/js/modules/analytics.js"></script>
+    <script src="/static/js/modules/dashboard.js"></script>
+    
+    <!-- Main application -->
+    <script src="/static/js/dashboard.js"></script>
+    <script src="/static/js/modern-ui.js"></script>
+</body>
+</html>

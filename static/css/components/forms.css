@@ -1,0 +1,444 @@
+/* Form Controls */
+
+/* Base Form Styles */
+.form-control,
+.form-select {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
+  height: 2.5rem;
+  padding: 0.625rem 1rem;
+  font-size: 0.95rem;
+  width: 100%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02) inset;
+}
+
+.form-control:focus,
+.form-select:focus {
+  background: var(--bg-primary);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  outline: none;
+  transform: scale(1.01);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Form Labels */
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.form-label.required::after {
+  content: ' *';
+  color: var(--danger-color);
+}
+
+/* Form Groups */
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+/* Input Groups */
+.input-group {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.input-group .form-control {
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+}
+
+.input-group-text {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-left: none;
+  padding: 0.625rem 1rem;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+/* Textarea */
+textarea.form-control {
+  height: auto;
+  min-height: 100px;
+  resize: vertical;
+  padding: 1rem;
+  line-height: 1.5;
+}
+
+/* File Input */
+.form-control[type="file"] {
+  padding: 0.5rem;
+  height: auto;
+}
+
+/* Search Box */
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 300px;
+}
+
+.search-box i {
+  position: absolute;
+  left: 1rem;
+  color: var(--text-muted);
+  z-index: 1;
+}
+
+.search-box input {
+  padding-left: 2.5rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+  width: 100%;
+}
+
+.search-box input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Skills Input Container */
+.skills-input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.skills-input-container .form-control {
+  position: relative;
+}
+
+.skills-input-container .form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Enhanced Skills Input */
+.skills-input-wrapper {
+  position: relative;
+}
+
+.skills-input-wrapper::after {
+  content: "Press Enter or comma to add skill";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.skills-input-wrapper:focus-within::after {
+  opacity: 1;
+}
+
+.skills-input-wrapper input:not(:placeholder-shown) + .skills-hint {
+  opacity: 0;
+}
+
+/* Enhanced Skill Tags Container */
+.skill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-lg);
+  min-height: 80px;
+  background: var(--bg-secondary);
+  transition: all var(--transition-normal);
+  position: relative;
+}
+
+.skill-tags:empty::before {
+  content: "Skills will appear here as you add them";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-style: italic;
+  pointer-events: none;
+}
+
+.skill-tags:focus-within,
+.skill-tags:hover {
+  border-color: var(--primary-color);
+  background: var(--bg-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.05);
+}
+
+/* Enhanced Individual Skill Tags */
+.skill-tag {
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-xl);
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+  animation: skillFadeIn 0.3s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.skill-tag::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+}
+
+.skill-tag:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.skill-tag:hover::before {
+  transform: translateX(0);
+}
+
+.skill-tag i {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  transition: all var(--transition-fast);
+}
+
+.skill-tag i:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+/* Skill Tag Animation */
+@keyframes skillFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.skill-tag.removing {
+  animation: skillFadeOut 0.2s ease-in forwards;
+}
+
+@keyframes skillFadeOut {
+  to {
+    opacity: 0;
+    transform: scale(0.8) translateY(-10px);
+  }
+}
+
+/* Skills Counter */
+.skills-counter {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-align: right;
+  margin-top: 0.25rem;
+}
+
+.skills-counter.warning {
+  color: var(--warning-color);
+}
+
+.skills-counter.error {
+  color: var(--danger-color);
+}
+
+/* Job Requirements Section Enhancement */
+.job-requirements-section {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+  margin-bottom: 1.5rem;
+}
+
+.job-requirements-section .section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.job-requirements-section .section-icon {
+  width: 32px;
+  height: 32px;
+  background: var(--gradient-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.875rem;
+}
+
+.job-requirements-section .section-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.job-requirements-section .section-description {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Form Field Enhancement */
+.enhanced-form-field {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.enhanced-form-field .form-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.enhanced-form-field .form-label i {
+  color: var(--primary-color);
+  font-size: 0.875rem;
+}
+
+.enhanced-form-field .form-label .required-indicator {
+  color: var(--danger-color);
+  font-weight: 700;
+}
+
+.enhanced-form-field .field-help {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.enhanced-form-field .field-help i {
+  font-size: 0.7rem;
+}
+
+/* Form Validation States */
+.form-control.is-valid,
+.form-select.is-valid {
+  border-color: var(--success-color);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.form-control.is-invalid,
+.form-select.is-invalid {
+  border-color: var(--danger-color);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.valid-feedback {
+  color: var(--success-color);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.invalid-feedback {
+  color: var(--danger-color);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* Form Help Text */
+.form-text {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+/* Floating Labels */
+.form-floating {
+  position: relative;
+}
+
+.form-floating .form-control {
+  padding: 1rem 0.75rem 0.25rem 0.75rem;
+  height: calc(3.5rem + 2px);
+}
+
+.form-floating label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  padding: 1rem 0.75rem;
+  pointer-events: none;
+  border: 1px solid transparent;
+  transform-origin: 0 0;
+  transition: opacity 0.1s ease-in-out, transform 0.1s ease-in-out;
+  color: var(--text-muted);
+}
+
+.form-floating .form-control:focus ~ label,
+.form-floating .form-control:not(:placeholder-shown) ~ label {
+  opacity: 0.65;
+  transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+}
+
+/* Responsive Forms */
+@media (max-width: 576px) {
+  .form-control,
+  .form-select {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  .search-box {
+    max-width: 100%;
+  }
+}

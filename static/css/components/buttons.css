@@ -1,0 +1,298 @@
+/* Button Styles */
+
+.btn {
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 0.5rem 1rem;
+  transition: all 0.3s var(--bounce-transition);
+  border: none;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Primary Button */
+.btn-primary {
+  background: var(--gradient-primary) !important;
+  border: none !important;
+  box-shadow: var(--shadow-button);
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateX(-100%);
+  transition: transform 0.6s ease-out;
+}
+
+.btn-primary:hover {
+  background: var(--gradient-secondary) !important;
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-button-hover);
+  color: white;
+}
+
+.btn-primary:hover::after {
+  transform: translateX(0);
+}
+
+.btn-primary:disabled {
+  background: var(--text-muted) !important;
+  transform: none;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.btn-primary:disabled::after {
+  display: none;
+}
+
+/* Outline Primary Button */
+.btn-outline-primary {
+  border: 2px solid var(--primary-color) !important;
+  color: var(--primary-color);
+  background: transparent;
+}
+
+.btn-outline-primary:hover {
+  background: var(--primary-color) !important;
+  color: white;
+  transform: translateY(-2px);
+  border-color: var(--primary-color) !important;
+}
+
+/* Outline Light Button */
+.btn-outline-light {
+  border: 2px solid rgba(255, 255, 255, 0.6) !important;
+  color: white;
+  background: transparent;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.btn-outline-light:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-color: white !important;
+  color: white;
+}
+
+/* Success Button */
+.btn-success {
+  background: var(--success-color);
+  color: white;
+}
+
+.btn-success:hover {
+  background: #059669;
+  transform: translateY(-2px);
+  color: white;
+}
+
+/* Warning Button */
+.btn-warning {
+  background: var(--warning-color);
+  color: white;
+}
+
+.btn-warning:hover {
+  background: #d97706;
+  transform: translateY(-2px);
+  color: white;
+}
+
+/* Danger Button */
+.btn-danger {
+  background: var(--danger-color);
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+  color: white;
+}
+
+/* Secondary Button */
+.btn-secondary {
+  background: var(--text-secondary);
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: var(--text-primary);
+  transform: translateY(-2px);
+  color: white;
+}
+
+/* Button Sizes */
+.btn-sm {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.btn-lg {
+  padding: 0.75rem 1.5rem;
+  font-size: 1.125rem;
+}
+
+/* Icon Buttons */
+.btn-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.btn-icon:hover {
+  transform: scale(1.1);
+}
+
+.btn-icon .badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: var(--danger-color);
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Text Button */
+.btn-text {
+  background: transparent;
+  color: var(--primary-color);
+  padding: 0.5rem;
+  border: none;
+  text-decoration: underline;
+}
+
+.btn-text:hover {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--secondary-color);
+  text-decoration: none;
+}
+
+/* Button Groups */
+.btn-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-group .btn {
+  border-radius: var(--radius-md);
+}
+
+/* Loading States */
+.btn-loader {
+  margin-left: 0.5rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Action Buttons for Tables/Cards */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.action-buttons .btn {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+/* Template Buttons */
+.template-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* Select Job Button */
+.select-job {
+  width: 100%;
+  background: var(--primary-color);
+  border: none;
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.select-job:hover {
+  background: var(--secondary-color);
+  transform: translateY(-1px);
+}
+
+/* Remove File Button */
+.remove-file {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  padding: 0.25rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remove-file:hover {
+  color: var(--danger-color);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* Browse Link */
+.browse-link {
+  color: var(--primary-color);
+  font-weight: 500;
+  text-decoration: underline;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.browse-link:hover {
+  color: var(--secondary-color);
+  text-decoration: none;
+}
