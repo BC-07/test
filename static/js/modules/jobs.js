@@ -543,11 +543,16 @@ const JobsModule = {
     async saveCategory() {
         const nameInput = document.getElementById('categoryName');
         const descInput = document.getElementById('categoryDescription');
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> a8c34b926cecbcf857975f517ff3f27d76e3c540
         if (!nameInput.value.trim()) {
             ToastUtils.showError('Category name is required');
             return;
         }
+<<<<<<< HEAD
 
         try {
             const payload = {
@@ -569,11 +574,29 @@ const JobsModule = {
                 await this.loadJobCategories();
                 await this.loadJobs();
 
+=======
+        
+        try {
+            const result = await APIService.jobCategories.create({
+                name: nameInput.value.trim(),
+                description: descInput.value.trim()
+            });
+            
+            if (result.success) {
+                ToastUtils.showSuccess('Category created successfully');
+                BootstrapInit.hideModal('categoryModal');
+                
+                // Refresh all category-related UI elements
+                await this.loadJobCategories();
+                await this.loadJobs();
+                
+>>>>>>> a8c34b926cecbcf857975f517ff3f27d76e3c540
                 // Refresh upload section if it exists
                 if (typeof loadJobCategoriesForUpload === 'function') {
                     await loadJobCategoriesForUpload();
                 }
             } else {
+<<<<<<< HEAD
                 console.error('API Error:', result); // Log full API response
                 throw new Error(result.error || 'Failed to create category');
             }
@@ -591,6 +614,13 @@ const JobsModule = {
             }
             
             ToastUtils.showError(errorMessage);
+=======
+                throw new Error(result.error || 'Failed to create category');
+            }
+        } catch (error) {
+            console.error('Error creating category:', error);
+            ToastUtils.showError(error.message || 'Failed to create category');
+>>>>>>> a8c34b926cecbcf857975f517ff3f27d76e3c540
         }
     }
 };
