@@ -1,22 +1,33 @@
 # ResumeAI
 
-ResumeAI is a resume screening and job recommendation web application powered by machine learning. It helps automate the process of categorizing resumes and recommending suitable jobs.
+ResumeAI is an advanced resume screening and job recommendation web application powered by machine learning and BERT-based semantic analysis. It helps automate the process of categorizing resumes and recommending suitable jobs with sophisticated natural language understanding.
 
 ## Features
 
+### Core Functionality
 - Upload and screen resumes (PDF, DOC, DOCX, TXT)
 - Categorize candidates using machine learning models
-- Job recommendation system with match scoring
+- Job recommendation system with comprehensive match scoring
 - Modern, user-friendly dashboard
 - PostgreSQL database integration
 - Secure file handling
 - Real-time analytics and reporting
+
+### 🆕 Enhanced Semantic Analysis
+- **BERT-based Understanding**: Uses DistilBERT for semantic comprehension
+- **Advanced Skill Extraction**: Context-aware skill detection with confidence scoring
+- **Semantic Job Matching**: Goes beyond keyword matching to understand meaning
+- **Transferable Skills Analysis**: Identifies applicable skills across different domains
+- **Multi-component Scoring**: Combines TF-IDF, semantic similarity, and skills analysis
+- **Experience Level Detection**: Automatically determines candidate seniority
+- **Career Transition Support**: Better matching for candidates with non-standard backgrounds
 
 ## Prerequisites
 
 - Python 3.8+
 - PostgreSQL 12+
 - pip (Python package manager)
+- ~500MB additional storage for BERT models
 
 ## Installation
 

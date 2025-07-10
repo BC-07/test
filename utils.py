@@ -5,12 +5,17 @@ import spacy
 import docx2txt
 import PyPDF2
 import nltk
-from typing import List, Dict, Optional, Any
+from typing import List, Dict, Optional, Any, Tuple
 from pathlib import Path
 from datetime import datetime
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import logging
+import numpy as np
+import torch
+from transformers import AutoTokenizer, AutoModel, DistilBertTokenizer, DistilBertModel
+from sentence_transformers import SentenceTransformer
+import faiss
 
 # Download required NLTK data
 try:
@@ -37,9 +42,254 @@ except OSError:
     spacy.cli.download('en_core_web_sm')
     nlp = spacy.load('en_core_web_sm')
 
+class SemanticAnalyzer:
+    """
+    Advanced semantic analysis using BERT/DistilBERT for better understanding
+    of resume content and job requirements matching.
+    """
+    
+    def __init__(self):
+        self.logger = logging.getLogger(__name__)
+        
+        # Initialize models
+        try:
+            # Use sentence-transformers for better semantic similarity
+            self.sentence_model = SentenceTransformer('all-MiniLM-L6-v2')
+            
+            # DistilBERT for specific NLP tasks
+            self.tokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased')
+            self.bert_model = DistilBertModel.from_pretrained('distilbert-base-uncased')
+            
+            self.logger.info("Semantic models loaded successfully")
+        except Exception as e:
+            self.logger.error(f"Error loading semantic models: {str(e)}")
+            # Fallback to None - will use traditional methods
+            self.sentence_model = None
+            self.tokenizer = None
+            self.bert_model = None
+            
+        # Skills synonyms for semantic matching
+        self.skill_synonyms = {
+            'javascript': ['js', 'ecmascript', 'node.js', 'nodejs'],
+            'python': ['py', 'python3', 'django', 'flask'],
+            'machine learning': ['ml', 'artificial intelligence', 'ai', 'deep learning'],
+            'database': ['db', 'sql', 'mysql', 'postgresql', 'mongodb'],
+            'web development': ['frontend', 'backend', 'full-stack', 'web dev'],
+            'project management': ['pm', 'scrum master', 'agile', 'team lead'],
+            'data analysis': ['analytics', 'data science', 'statistics', 'reporting'],
+            'cloud computing': ['aws', 'azure', 'gcp', 'cloud services'],
+            'devops': ['ci/cd', 'deployment', 'infrastructure', 'automation'],
+            'leadership': ['team lead', 'management', 'supervision', 'mentoring']
+        }
+        
+    def get_semantic_embeddings(self, texts: List[str]) -> np.ndarray:
+        """Get semantic embeddings for a list of texts using sentence transformers."""
+        if self.sentence_model is None:
+            return None
+            
+        try:
+            embeddings = self.sentence_model.encode(texts)
+            return embeddings
+        except Exception as e:
+            self.logger.error(f"Error getting embeddings: {str(e)}")
+            return None
+    
+    def semantic_similarity(self, text1: str, text2: str) -> float:
+        """Calculate semantic similarity between two texts."""
+        if self.sentence_model is None:
+            return 0.0
+            
+        try:
+            embeddings = self.sentence_model.encode([text1, text2])
+            similarity = cosine_similarity([embeddings[0]], [embeddings[1]])[0][0]
+            return float(similarity)
+        except Exception as e:
+            self.logger.error(f"Error calculating semantic similarity: {str(e)}")
+            return 0.0
+    
+    def find_semantic_skills(self, text: str, skill_list: List[str], threshold: float = 0.6) -> List[Tuple[str, float]]:
+        """Find skills in text using semantic similarity instead of exact matching."""
+        if self.sentence_model is None:
+            return []
+            
+        try:
+            found_skills = []
+            text_lower = text.lower()
+            
+            # Get embeddings for the entire text
+            text_embedding = self.sentence_model.encode([text_lower])
+            
+            # Check each skill and its synonyms
+            for skill in skill_list:
+                skill_variants = [skill.lower()]
+                
+                # Add synonyms if available
+                if skill.lower() in self.skill_synonyms:
+                    skill_variants.extend(self.skill_synonyms[skill.lower()])
+                
+                max_similarity = 0.0
+                best_match = skill
+                
+                # Check each variant
+                for variant in skill_variants:
+                    # Direct text search first
+                    if variant in text_lower:
+                        found_skills.append((skill, 1.0))
+                        max_similarity = 1.0
+                        break
+                    
+                    # Semantic similarity
+                    variant_embedding = self.sentence_model.encode([variant])
+                    similarity = cosine_similarity(text_embedding, variant_embedding)[0][0]
+                    
+                    if similarity > max_similarity:
+                        max_similarity = similarity
+                        best_match = skill
+                
+                # Add skill if similarity is above threshold
+                if max_similarity >= threshold and max_similarity < 1.0:
+                    found_skills.append((best_match, max_similarity))
+            
+            # Sort by similarity score
+            found_skills.sort(key=lambda x: x[1], reverse=True)
+            return found_skills
+            
+        except Exception as e:
+            self.logger.error(f"Error finding semantic skills: {str(e)}")
+            return []
+    
+    def extract_semantic_context(self, text: str, target_skills: List[str]) -> Dict[str, Any]:
+        """Extract context around skills to understand experience level and relevance."""
+        if self.sentence_model is None:
+            return {}
+            
+        try:
+            sentences = nltk.sent_tokenize(text)
+            context_info = {}
+            
+            for skill in target_skills:
+                skill_contexts = []
+                
+                for sentence in sentences:
+                    similarity = self.semantic_similarity(sentence.lower(), skill.lower())
+                    if similarity > 0.3:  # Lower threshold for context
+                        # Extract experience indicators
+                        experience_level = self._extract_experience_level(sentence)
+                        context_info[skill] = {
+                            'context': sentence,
+                            'similarity': similarity,
+                            'experience_level': experience_level
+                        }
+                        skill_contexts.append({
+                            'text': sentence,
+                            'similarity': similarity,
+                            'experience': experience_level
+                        })
+                
+                if skill_contexts:
+                    # Get the best context
+                    best_context = max(skill_contexts, key=lambda x: x['similarity'])
+                    context_info[skill] = best_context
+            
+            return context_info
+            
+        except Exception as e:
+            self.logger.error(f"Error extracting semantic context: {str(e)}")
+            return {}
+    
+    def _extract_experience_level(self, text: str) -> str:
+        """Extract experience level indicators from text."""
+        text_lower = text.lower()
+        
+        # Experience level indicators
+        expert_indicators = ['expert', 'senior', 'lead', 'architect', 'advanced', 'extensive']
+        intermediate_indicators = ['experienced', 'proficient', 'skilled', 'intermediate']
+        beginner_indicators = ['beginner', 'basic', 'junior', 'entry', 'learning', 'familiar']
+        
+        for indicator in expert_indicators:
+            if indicator in text_lower:
+                return 'expert'
+        
+        for indicator in intermediate_indicators:
+            if indicator in text_lower:
+                return 'intermediate'
+                
+        for indicator in beginner_indicators:
+            if indicator in text_lower:
+                return 'beginner'
+        
+        # Look for years of experience
+        years_match = re.search(r'(\d+)\s*(?:years?|yrs?)', text_lower)
+        if years_match:
+            years = int(years_match.group(1))
+            if years >= 5:
+                return 'expert'
+            elif years >= 2:
+                return 'intermediate'
+            else:
+                return 'beginner'
+        
+        return 'unknown'
+    
+    def semantic_job_matching(self, resume_text: str, job_requirements: str) -> Dict[str, Any]:
+        """Advanced job matching using semantic understanding."""
+        if self.sentence_model is None:
+            return {'error': 'Semantic models not available'}
+            
+        try:
+            # Break down job requirements into components
+            job_sentences = nltk.sent_tokenize(job_requirements)
+            resume_sentences = nltk.sent_tokenize(resume_text)
+            
+            # Get embeddings for all sentences
+            all_sentences = job_sentences + resume_sentences
+            embeddings = self.sentence_model.encode(all_sentences)
+            
+            job_embeddings = embeddings[:len(job_sentences)]
+            resume_embeddings = embeddings[len(job_sentences):]
+            
+            # Calculate similarity matrix
+            similarity_matrix = cosine_similarity(job_embeddings, resume_embeddings)
+            
+            # Find best matches for each job requirement
+            matches = []
+            for i, job_sentence in enumerate(job_sentences):
+                best_match_idx = np.argmax(similarity_matrix[i])
+                best_similarity = similarity_matrix[i][best_match_idx]
+                
+                if best_similarity > 0.3:  # Minimum threshold
+                    matches.append({
+                        'requirement': job_sentence,
+                        'matched_text': resume_sentences[best_match_idx],
+                        'similarity': float(best_similarity)
+                    })
+            
+            # Calculate overall match score
+            if matches:
+                overall_score = np.mean([match['similarity'] for match in matches])
+                coverage = len(matches) / len(job_sentences)
+            else:
+                overall_score = 0.0
+                coverage = 0.0
+            
+            return {
+                'overall_score': float(overall_score),
+                'coverage': float(coverage),
+                'detailed_matches': matches,
+                'total_requirements': len(job_sentences),
+                'matched_requirements': len(matches)
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Error in semantic job matching: {str(e)}")
+            return {'error': str(e)}
+
 class ResumeProcessor:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
+        
+        # Initialize semantic analyzer
+        self.semantic_analyzer = SemanticAnalyzer()
         
         # Common skills dictionary
         self.skills_dict = {
@@ -261,27 +511,76 @@ class ResumeProcessor:
         return contact_info
         
     def extract_skills(self, text: str) -> List[str]:
-        """Extract skills from text."""
+        """Extract skills from text using both traditional and semantic methods."""
         text_lower = text.lower()
         found_skills = set()
         
-        # Extract skills from all categories
+        # Traditional keyword-based extraction
         all_skills = []
         for category, skills in self.skills_dict.items():
             all_skills.extend(skills)
-        
-        # Add skills from skills_db
         all_skills.extend(self.skills_db)
-        
-        # Remove duplicates and search for skills
         unique_skills = list(set(all_skills))
         
+        # Traditional exact matching
         for skill in unique_skills:
-            # Use word boundaries to avoid partial matches
             if re.search(r'\b' + re.escape(skill.lower()) + r'\b', text_lower):
                 found_skills.add(skill)
         
+        # Enhanced semantic skill extraction
+        try:
+            semantic_skills = self.semantic_analyzer.find_semantic_skills(
+                text, unique_skills, threshold=0.6
+            )
+            
+            # Add semantically found skills
+            for skill, confidence in semantic_skills:
+                if confidence > 0.6:  # High confidence threshold
+                    found_skills.add(skill)
+                    
+        except Exception as e:
+            self.logger.error(f"Error in semantic skill extraction: {str(e)}")
+        
         return sorted(list(found_skills))
+    
+    def extract_skills_with_context(self, text: str) -> Dict[str, Any]:
+        """Extract skills with semantic context and confidence scores."""
+        try:
+            # Get basic skills
+            skills = self.extract_skills(text)
+            
+            # Get semantic context for each skill
+            context_info = self.semantic_analyzer.extract_semantic_context(text, skills)
+            
+            # Combine traditional and semantic results
+            enhanced_skills = {}
+            for skill in skills:
+                enhanced_skills[skill] = {
+                    'found': True,
+                    'confidence': 1.0,  # High confidence for exact matches
+                    'context': context_info.get(skill, {}),
+                    'experience_level': context_info.get(skill, {}).get('experience', 'unknown')
+                }
+            
+            # Add semantically found skills with lower confidence
+            semantic_skills = self.semantic_analyzer.find_semantic_skills(
+                text, self.skills_db, threshold=0.4
+            )
+            
+            for skill, confidence in semantic_skills:
+                if skill not in enhanced_skills and confidence > 0.4:
+                    enhanced_skills[skill] = {
+                        'found': True,
+                        'confidence': confidence,
+                        'context': context_info.get(skill, {}),
+                        'experience_level': context_info.get(skill, {}).get('experience', 'unknown')
+                    }
+            
+            return enhanced_skills
+            
+        except Exception as e:
+            self.logger.error(f"Error extracting skills with context: {str(e)}")
+            return {}
         
     def extract_education(self, text: str) -> List[Dict[str, str]]:
         """Extract education information from text."""
@@ -456,15 +755,14 @@ class ResumeProcessor:
             return "unknown"
     
     def match_skills_with_requirements(self, resume_skills: List[str], job_requirements: str) -> Dict[str, Any]:
-        """Match resume skills with job requirements."""
-        # Extract skills from job requirements text
+        """Match resume skills with job requirements using semantic understanding."""
+        # Extract skills from job requirements text (traditional method)
         job_skills = self.extract_skills(job_requirements)
         
         # Also try to extract skills from comma-separated requirements
         if ',' in job_requirements:
             requirement_parts = [part.strip() for part in job_requirements.split(',')]
             for part in requirement_parts:
-                # Check if this part is a skill
                 part_lower = part.lower()
                 if any(skill.lower() in part_lower for skill in self.skills_db):
                     job_skills.append(part)
@@ -472,56 +770,317 @@ class ResumeProcessor:
         # Remove duplicates
         job_skills = list(set(job_skills))
         
-        # Find matched skills (case insensitive)
+        # Traditional matching
         matched_skills = []
         missing_skills = []
+        semantic_matches = []
         
+        # First pass: exact and partial matching
         for job_skill in job_skills:
             found = False
             for resume_skill in resume_skills:
-                # Check for exact match or partial match
                 if (job_skill.lower() == resume_skill.lower() or 
                     job_skill.lower() in resume_skill.lower() or 
                     resume_skill.lower() in job_skill.lower()):
-                    matched_skills.append(job_skill)
+                    matched_skills.append({
+                        'required_skill': job_skill,
+                        'matched_skill': resume_skill,
+                        'match_type': 'exact',
+                        'confidence': 1.0
+                    })
                     found = True
                     break
             if not found:
                 missing_skills.append(job_skill)
         
-        # Calculate match percentage
+        # Second pass: semantic matching for missing skills
+        try:
+            for missing_skill in missing_skills[:]:  # Copy list to modify during iteration
+                best_match = None
+                best_similarity = 0.0
+                
+                for resume_skill in resume_skills:
+                    similarity = self.semantic_analyzer.semantic_similarity(
+                        missing_skill, resume_skill
+                    )
+                    
+                    if similarity > best_similarity and similarity > 0.7:  # High threshold
+                        best_similarity = similarity
+                        best_match = resume_skill
+                
+                if best_match:
+                    semantic_matches.append({
+                        'required_skill': missing_skill,
+                        'matched_skill': best_match,
+                        'match_type': 'semantic',
+                        'confidence': best_similarity
+                    })
+                    missing_skills.remove(missing_skill)
+                    
+        except Exception as e:
+            self.logger.error(f"Error in semantic matching: {str(e)}")
+        
+        # Calculate enhanced match percentage
+        total_matches = len(matched_skills) + len(semantic_matches)
         total_required = len(job_skills) if job_skills else 1
-        match_percentage = round((len(matched_skills) / total_required) * 100, 2)
+        match_percentage = round((total_matches / total_required) * 100, 2)
+        
+        # Calculate weighted score (exact matches worth more than semantic)
+        exact_weight = 1.0
+        semantic_weight = 0.8
+        
+        weighted_score = (
+            len(matched_skills) * exact_weight + 
+            sum(match['confidence'] for match in semantic_matches) * semantic_weight
+        ) / total_required * 100
         
         return {
-            'matched_skills': matched_skills,
+            'exact_matches': [match['required_skill'] for match in matched_skills],
+            'semantic_matches': semantic_matches,
             'missing_skills': missing_skills,
             'match_percentage': match_percentage,
+            'weighted_score': round(weighted_score, 2),
             'total_required_skills': total_required,
-            'matched_count': len(matched_skills)
+            'exact_match_count': len(matched_skills),
+            'semantic_match_count': len(semantic_matches),
+            'all_matches': matched_skills + semantic_matches
         }
         
-    def calculate_match_score(self, resume_text: str, job_requirements: str) -> float:
-        """Calculate match score between resume and job requirements."""
+    def calculate_match_score(self, resume_text: str, job_requirements: str) -> Dict[str, Any]:
+        """Calculate comprehensive match score using both traditional and semantic methods."""
         try:
-            # Clean texts
+            # Traditional TF-IDF approach
             resume_clean = self.clean_text(resume_text)
             requirements_clean = self.clean_text(job_requirements)
             
-            # Create TF-IDF vectors
             vectorizer = TfidfVectorizer(stop_words='english')
             tfidf_matrix = vectorizer.fit_transform([resume_clean, requirements_clean])
+            tfidf_similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
             
-            # Calculate cosine similarity
-            similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
+            # Semantic similarity
+            semantic_score = 0.0
+            semantic_details = {}
             
-            # Scale similarity to 0-100 range
-            score = round(similarity * 100, 2)
-            return max(0, min(score, 100))  # Ensure score is between 0 and 100
+            try:
+                semantic_score = self.semantic_analyzer.semantic_similarity(
+                    resume_text, job_requirements
+                )
+                
+                # Get detailed semantic matching
+                semantic_details = self.semantic_analyzer.semantic_job_matching(
+                    resume_text, job_requirements
+                )
+                
+            except Exception as e:
+                self.logger.error(f"Error in semantic scoring: {str(e)}")
+                semantic_details = {'error': str(e)}
+            
+            # Skills-based matching
+            resume_skills = self.extract_skills(resume_text)
+            skills_match = self.match_skills_with_requirements(resume_skills, job_requirements)
+            
+            # Combined scoring with weights
+            tfidf_weight = 0.3
+            semantic_weight = 0.4
+            skills_weight = 0.3
+            
+            # Normalize scores to 0-100 range
+            tfidf_score = tfidf_similarity * 100
+            semantic_score_normalized = semantic_score * 100
+            skills_score = skills_match.get('weighted_score', 0)
+            
+            # Calculate weighted final score
+            final_score = (
+                tfidf_score * tfidf_weight +
+                semantic_score_normalized * semantic_weight +
+                skills_score * skills_weight
+            )
+            
+            # Ensure score is between 0 and 100
+            final_score = max(0, min(final_score, 100))
+            
+            return {
+                'final_score': round(final_score, 2),
+                'component_scores': {
+                    'tfidf_score': round(tfidf_score, 2),
+                    'semantic_score': round(semantic_score_normalized, 2),
+                    'skills_score': round(skills_score, 2)
+                },
+                'skills_analysis': skills_match,
+                'semantic_details': semantic_details,
+                'weights': {
+                    'tfidf_weight': tfidf_weight,
+                    'semantic_weight': semantic_weight,
+                    'skills_weight': skills_weight
+                }
+            }
+            
         except Exception as e:
-            self.logger.error(f"Error calculating match score: {str(e)}")
-            return 0.0
-
+            self.logger.error(f"Error calculating comprehensive match score: {str(e)}")
+            return {
+                'final_score': 0.0,
+                'error': str(e),
+                'component_scores': {
+                    'tfidf_score': 0.0,
+                    'semantic_score': 0.0,
+                    'skills_score': 0.0
+                }
+            }
+    
+    def analyze_transferable_skills(self, resume_text: str, target_domain: str) -> Dict[str, Any]:
+        """Analyze transferable skills for career transitions using semantic understanding."""
+        try:
+            # Extract all skills with context
+            skills_with_context = self.extract_skills_with_context(resume_text)
+            
+            # Define transferable skill categories
+            transferable_categories = {
+                'leadership': ['management', 'team lead', 'supervision', 'mentoring', 'project management'],
+                'communication': ['presentation', 'writing', 'documentation', 'client relations'],
+                'analytical': ['problem solving', 'data analysis', 'research', 'critical thinking'],
+                'technical': ['programming', 'database', 'web development', 'software'],
+                'creative': ['design', 'innovation', 'creativity', 'user experience']
+            }
+            
+            transferable_analysis = {}
+            
+            for category, keywords in transferable_categories.items():
+                category_skills = []
+                
+                for skill, details in skills_with_context.items():
+                    # Check if skill belongs to this category using semantic similarity
+                    for keyword in keywords:
+                        similarity = self.semantic_analyzer.semantic_similarity(skill, keyword)
+                        if similarity > 0.5:
+                            category_skills.append({
+                                'skill': skill,
+                                'relevance': similarity,
+                                'experience_level': details.get('experience_level', 'unknown'),
+                                'confidence': details.get('confidence', 0.0)
+                            })
+                            break
+                
+                if category_skills:
+                    transferable_analysis[category] = {
+                        'skills': category_skills,
+                        'strength': len(category_skills),
+                        'avg_relevance': np.mean([s['relevance'] for s in category_skills])
+                    }
+            
+            # Calculate transferability to target domain
+            domain_relevance = 0.0
+            if target_domain:
+                domain_similarity = self.semantic_analyzer.semantic_similarity(
+                    resume_text, target_domain
+                )
+                domain_relevance = domain_similarity
+            
+            return {
+                'transferable_skills': transferable_analysis,
+                'domain_relevance': float(domain_relevance),
+                'total_transferable_count': sum(
+                    len(cat['skills']) for cat in transferable_analysis.values()
+                ),
+                'strongest_category': max(
+                    transferable_analysis.keys(),
+                    key=lambda k: transferable_analysis[k]['avg_relevance']
+                ) if transferable_analysis else None
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Error analyzing transferable skills: {str(e)}")
+            return {'error': str(e)}
+    
+    def semantic_resume_summary(self, resume_text: str) -> Dict[str, Any]:
+        """Generate a comprehensive semantic summary of the resume."""
+        try:
+            # Extract various components
+            basic_info = self.extract_basic_info(resume_text)
+            skills = self.extract_skills_with_context(resume_text)
+            experience = self.extract_experience(resume_text)
+            education = self.extract_education(resume_text)
+            
+            # Analyze skill diversity and depth
+            skill_categories = {}
+            for skill, details in skills.items():
+                # Categorize skills semantically
+                for category, category_skills in self.skills_dict.items():
+                    for cat_skill in category_skills:
+                        similarity = self.semantic_analyzer.semantic_similarity(skill, cat_skill)
+                        if similarity > 0.6:
+                            if category not in skill_categories:
+                                skill_categories[category] = []
+                            skill_categories[category].append({
+                                'skill': skill,
+                                'similarity': similarity,
+                                'experience_level': details.get('experience_level', 'unknown')
+                            })
+                            break
+            
+            # Calculate experience depth
+            experience_indicators = {
+                'senior_keywords': ['senior', 'lead', 'manager', 'director', 'architect'],
+                'years_mentioned': re.findall(r'(\d+)\s*(?:years?|yrs?)', resume_text.lower()),
+                'companies_count': len(re.findall(r'(?:company|corp|inc|ltd|llc)', resume_text.lower()))
+            }
+            
+            return {
+                'basic_info': basic_info,
+                'skill_summary': {
+                    'total_skills': len(skills),
+                    'categorized_skills': skill_categories,
+                    'skill_diversity': len(skill_categories),
+                    'avg_confidence': np.mean([s.get('confidence', 0) for s in skills.values()]) if skills else 0
+                },
+                'experience_summary': {
+                    'total_experiences': len(experience),
+                    'experience_indicators': experience_indicators,
+                    'seniority_level': self._determine_seniority_level(resume_text)
+                },
+                'education_summary': {
+                    'education_count': len(education),
+                    'education_details': education
+                }
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Error generating semantic summary: {str(e)}")
+            return {'error': str(e)}
+    
+    def _determine_seniority_level(self, text: str) -> str:
+        """Determine seniority level based on semantic analysis."""
+        text_lower = text.lower()
+        
+        senior_indicators = [
+            'senior', 'lead', 'principal', 'architect', 'manager', 'director',
+            'head of', 'chief', 'vp', 'vice president'
+        ]
+        
+        mid_indicators = [
+            'developer', 'engineer', 'analyst', 'specialist', 'consultant'
+        ]
+        
+        junior_indicators = [
+            'junior', 'entry', 'associate', 'intern', 'trainee', 'assistant'
+        ]
+        
+        # Count indicators
+        senior_count = sum(1 for indicator in senior_indicators if indicator in text_lower)
+        mid_count = sum(1 for indicator in mid_indicators if indicator in text_lower)
+        junior_count = sum(1 for indicator in junior_indicators if indicator in text_lower)
+        
+        # Check years of experience
+        years_matches = re.findall(r'(\d+)\s*(?:years?|yrs?)', text_lower)
+        max_years = max([int(year) for year in years_matches]) if years_matches else 0
+        
+        # Determine level
+        if senior_count > 0 or max_years >= 7:
+            return 'senior'
+        elif junior_count > 0 or max_years <= 2:
+            return 'junior'
+        else:
+            return 'mid-level'
+        
 # Legacy function wrappers for backward compatibility
 def cleanResume(txt):
     processor = ResumeProcessor()

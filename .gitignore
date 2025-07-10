@@ -1,8 +1,6 @@
-# Ignore all files in the models directory
+
 models/*
 .env
-# But do not ignore the models directory itself
 !models/
+.md/
 
-# If you want to keep specific files, add exceptions below (example):
-#!models/README.md
