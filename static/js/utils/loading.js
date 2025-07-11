@@ -277,3 +277,4 @@ if (typeof module !== 'undefined' && module.exports) {
 window.LoadingUtils = loadingUtils;
 window.showLoading = (options) => loadingUtils.show(options);
 window.hideLoading = () => loadingUtils.hide();
+window.updateLoadingMessage = (message, subtext) => loadingUtils.updateMessage(message, subtext);

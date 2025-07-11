@@ -251,8 +251,8 @@ async function updateCandidateStatus(candidateId, status) {
 // Dashboard Data Loading
 // Dashboard Data Loading - now delegated to DashboardModule
 async function loadDashboardData() {
-    // Deprecated: Use DashboardModule.loadData() instead
-    DashboardModule.loadData();
+    // Deprecated: Use DashboardModule.loadDashboardData() instead
+    DashboardModule.loadDashboardData();
 }
 
 // Refresh all data sections after updates - now delegated to DashboardModule

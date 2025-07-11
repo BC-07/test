@@ -219,19 +219,19 @@ const UploadModule = {
         }
 
         // Show enhanced loading with progress
-        const loadingId = LoadingUtils.show({
+        const loadingId = window.LoadingUtils.show({
             type: 'progress',
             message: 'Uploading Resumes',
             subtext: `Processing ${this.selectedFiles.length} file${this.selectedFiles.length > 1 ? 's' : ''}...`
         });
 
         // Also show button loading state
-        LoadingUtils.showButtonLoading(this.startUploadBtn, 'Uploading...');
+        window.LoadingUtils.showButtonLoading(this.startUploadBtn, 'Uploading...');
 
         try {
             // Update loading message for AI processing
             setTimeout(() => {
-                LoadingUtils.updateMessage(
+                window.LoadingUtils.updateMessage(
                     'AI Processing', 
                     'Analyzing resumes with artificial intelligence...'
                 );
@@ -241,14 +241,14 @@ const UploadModule = {
 
             if (result.success) {
                 // Update to completion message
-                LoadingUtils.updateMessage(
+                window.LoadingUtils.updateMessage(
                     'Processing Complete', 
                     'Ranking candidates based on job requirements...'
                 );
 
                 // Show success animation briefly
                 setTimeout(() => {
-                    LoadingUtils.hide();
+                    window.LoadingUtils.hide();
                     
                     let message = `Successfully processed ${result.results.length} resumes`;
                     if (result.warnings && result.warnings.length > 0) {
@@ -268,10 +268,10 @@ const UploadModule = {
 
         } catch (error) {
             console.error('Upload error:', error);
-            LoadingUtils.hide();
+            window.LoadingUtils.hide();
             ToastUtils.showError(`Upload failed: ${error.message}`, { duration: 8000 });
         } finally {
-            LoadingUtils.hideButtonLoading(this.startUploadBtn);
+            window.LoadingUtils.hideButtonLoading(this.startUploadBtn);
         }
     },
 
