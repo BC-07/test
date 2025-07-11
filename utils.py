@@ -846,15 +846,22 @@ class ResumeProcessor:
             'all_matches': matched_skills + semantic_matches
         }
         
-    def calculate_match_score(self, resume_text: str, job_requirements: str) -> Dict[str, Any]:
-        """Calculate comprehensive match score using both traditional and semantic methods."""
+    def calculate_match_score(self, resume_text: str, job_requirements: str, 
+                            job_category: str = None, category_description: str = None,
+                            required_experience: str = None) -> Dict[str, Any]:
+        """Calculate comprehensive match score using multiple weighted components."""
         try:
             # Traditional TF-IDF approach
             resume_clean = self.clean_text(resume_text)
             requirements_clean = self.clean_text(job_requirements)
             
+            # Include category description in analysis if provided
+            enhanced_requirements = requirements_clean
+            if category_description:
+                enhanced_requirements += " " + self.clean_text(category_description)
+            
             vectorizer = TfidfVectorizer(stop_words='english')
-            tfidf_matrix = vectorizer.fit_transform([resume_clean, requirements_clean])
+            tfidf_matrix = vectorizer.fit_transform([resume_clean, enhanced_requirements])
             tfidf_similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
             
             # Semantic similarity
@@ -863,7 +870,7 @@ class ResumeProcessor:
             
             try:
                 semantic_score = self.semantic_analyzer.semantic_similarity(
-                    resume_text, job_requirements
+                    resume_text, job_requirements + " " + (category_description or "")
                 )
                 
                 # Get detailed semantic matching
@@ -879,10 +886,42 @@ class ResumeProcessor:
             resume_skills = self.extract_skills(resume_text)
             skills_match = self.match_skills_with_requirements(resume_skills, job_requirements)
             
-            # Combined scoring with weights
-            tfidf_weight = 0.3
-            semantic_weight = 0.4
-            skills_weight = 0.3
+            # Experience level matching
+            experience_score = 50.0  # Default neutral score
+            if required_experience:
+                experience_score = self.calculate_experience_match_score(resume_text, required_experience)
+            
+            # Category relevance (if category provided)
+            category_score = 50.0  # Default neutral
+            if job_category:
+                category_score = self.semantic_analyzer.semantic_similarity(
+                    resume_text, job_category + " " + (category_description or "")
+                ) * 100
+            
+            # Dynamic scoring weights based on availability of components
+            base_weights = {
+                'tfidf': 0.25,
+                'semantic': 0.35,
+                'skills': 0.25,
+                'experience': 0.10,
+                'category': 0.05
+            }
+            
+            # Adjust weights if some components are missing
+            active_weights = {}
+            total_weight = 0
+            
+            for component, weight in base_weights.items():
+                if component == 'experience' and not required_experience:
+                    continue
+                if component == 'category' and not job_category:
+                    continue
+                active_weights[component] = weight
+                total_weight += weight
+            
+            # Normalize weights to sum to 1.0
+            for component in active_weights:
+                active_weights[component] /= total_weight
             
             # Normalize scores to 0-100 range
             tfidf_score = tfidf_similarity * 100
@@ -891,9 +930,11 @@ class ResumeProcessor:
             
             # Calculate weighted final score
             final_score = (
-                tfidf_score * tfidf_weight +
-                semantic_score_normalized * semantic_weight +
-                skills_score * skills_weight
+                tfidf_score * active_weights.get('tfidf', 0) +
+                semantic_score_normalized * active_weights.get('semantic', 0) +
+                skills_score * active_weights.get('skills', 0) +
+                experience_score * active_weights.get('experience', 0) +
+                category_score * active_weights.get('category', 0)
             )
             
             # Ensure score is between 0 and 100
@@ -904,14 +945,18 @@ class ResumeProcessor:
                 'component_scores': {
                     'tfidf_score': round(tfidf_score, 2),
                     'semantic_score': round(semantic_score_normalized, 2),
-                    'skills_score': round(skills_score, 2)
+                    'skills_score': round(skills_score, 2),
+                    'experience_score': round(experience_score, 2),
+                    'category_score': round(category_score, 2)
                 },
                 'skills_analysis': skills_match,
                 'semantic_details': semantic_details,
-                'weights': {
-                    'tfidf_weight': tfidf_weight,
-                    'semantic_weight': semantic_weight,
-                    'skills_weight': skills_weight
+                'weights_used': active_weights,
+                'match_breakdown': {
+                    'skills_matched': skills_match.get('exact_match_count', 0) + skills_match.get('semantic_match_count', 0),
+                    'skills_total': skills_match.get('total_required_skills', 0),
+                    'experience_alignment': round(experience_score, 1),
+                    'category_relevance': round(category_score, 1)
                 }
             }
             
@@ -923,9 +968,43 @@ class ResumeProcessor:
                 'component_scores': {
                     'tfidf_score': 0.0,
                     'semantic_score': 0.0,
-                    'skills_score': 0.0
+                    'skills_score': 0.0,
+                    'experience_score': 0.0,
+                    'category_score': 0.0
                 }
             }
+    
+    def calculate_experience_match_score(self, resume_text: str, required_experience: str) -> float:
+        """Calculate how well candidate's experience matches required experience level."""
+        try:
+            resume_seniority = self._determine_seniority_level(resume_text)
+            required_seniority = required_experience.lower()
+            
+            # Experience level mapping
+            level_scores = {
+                ('junior', 'entry'): 1.0, ('junior', 'junior'): 1.0,
+                ('junior', 'mid-level'): 0.6, ('junior', 'senior'): 0.2,
+                ('mid-level', 'entry'): 0.8, ('mid-level', 'junior'): 0.8,
+                ('mid-level', 'mid-level'): 1.0, ('mid-level', 'senior'): 0.6,
+                ('senior', 'entry'): 0.9, ('senior', 'junior'): 0.9,
+                ('senior', 'mid-level'): 0.9, ('senior', 'senior'): 1.0
+            }
+            
+            # Map common variations
+            experience_mapping = {
+                'entry level': 'entry', 'entry-level': 'entry',
+                'mid level': 'mid-level', 'intermediate': 'mid-level',
+                'experienced': 'mid-level', 'senior level': 'senior'
+            }
+            
+            mapped_required = experience_mapping.get(required_seniority, required_seniority)
+            
+            score = level_scores.get((resume_seniority, mapped_required), 0.5)
+            return score * 100  # Convert to percentage
+            
+        except Exception as e:
+            self.logger.error(f"Error calculating experience match: {str(e)}")
+            return 50.0  # Neutral score on error
     
     def analyze_transferable_skills(self, resume_text: str, target_domain: str) -> Dict[str, Any]:
         """Analyze transferable skills for career transitions using semantic understanding."""
@@ -1080,6 +1159,79 @@ class ResumeProcessor:
             return 'junior'
         else:
             return 'mid-level'
+        
+    def calculate_priority_weighted_skills_score(self, resume_skills: List[str], 
+                                                job_requirements: str, 
+                                                priority_skills: List[str] = None) -> Dict[str, Any]:
+        """Calculate skills score with priority weighting for critical skills."""
+        try:
+            # Get basic skills matching
+            basic_match = self.match_skills_with_requirements(resume_skills, job_requirements)
+            
+            if not priority_skills:
+                return basic_match
+            
+            # Calculate priority skills matching
+            priority_matched = 0
+            priority_total = len(priority_skills)
+            priority_details = []
+            
+            for priority_skill in priority_skills:
+                skill_found = False
+                best_match = None
+                best_similarity = 0.0
+                
+                # Check exact matches first
+                for resume_skill in resume_skills:
+                    if (priority_skill.lower() == resume_skill.lower() or 
+                        priority_skill.lower() in resume_skill.lower() or 
+                        resume_skill.lower() in priority_skill.lower()):
+                        priority_matched += 1
+                        skill_found = True
+                        priority_details.append({
+                            'required': priority_skill,
+                            'matched': resume_skill,
+                            'type': 'exact',
+                            'score': 1.0
+                        })
+                        break
+                
+                # If no exact match, try semantic matching
+                if not skill_found:
+                    for resume_skill in resume_skills:
+                        similarity = self.semantic_analyzer.semantic_similarity(
+                            priority_skill, resume_skill
+                        )
+                        if similarity > best_similarity and similarity > 0.75:  # High threshold for priority
+                            best_similarity = similarity
+                            best_match = resume_skill
+                    
+                    if best_match:
+                        priority_matched += best_similarity  # Partial credit for semantic match
+                        priority_details.append({
+                            'required': priority_skill,
+                            'matched': best_match,
+                            'type': 'semantic',
+                            'score': best_similarity
+                        })
+            
+            # Calculate enhanced score with priority weighting
+            priority_score = (priority_matched / priority_total * 100) if priority_total > 0 else 100
+            
+            # Combine with basic score (70% basic, 30% priority)
+            enhanced_score = (basic_match.get('weighted_score', 0) * 0.7 + priority_score * 0.3)
+            
+            return {
+                **basic_match,  # Include all basic match data
+                'priority_score': round(priority_score, 2),
+                'enhanced_weighted_score': round(enhanced_score, 2),
+                'priority_details': priority_details,
+                'priority_match_rate': round(priority_matched / priority_total * 100, 2) if priority_total > 0 else 100
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Error in priority weighted scoring: {str(e)}")
+            return self.match_skills_with_requirements(resume_skills, job_requirements)
         
 # Legacy function wrappers for backward compatibility
 def cleanResume(txt):

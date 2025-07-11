@@ -132,6 +132,7 @@ class ResumeScreeningApp:
         self.app.add_url_rule('/', 'index', self.index)
         self.app.add_url_rule('/dashboard', 'dashboard', self.dashboard)
         self.app.add_url_rule('/dashboard/<path:section>', 'dashboard_section', self.dashboard)
+        self.app.add_url_rule('/demo', 'demo', self.demo)
         
         # API routes
         self.app.add_url_rule('/api/health', 'health_check', self.health_check)
@@ -148,6 +149,10 @@ class ResumeScreeningApp:
     def index(self):
         """Serve the landing page"""
         return render_template("index.html")
+    
+    def demo(self):
+        """Serve the design demo page"""
+        return render_template("demo.html")
     
     def dashboard(self, section=None):
         """Serve the dashboard page"""

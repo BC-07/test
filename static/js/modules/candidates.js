@@ -199,7 +199,8 @@ const CandidatesModule = {
                 await this.updateCandidateStatus(candidateId, 'shortlisted');
             } else if (e.target.closest('.remove-candidate')) {
                 e.stopPropagation();
-                if (confirm('Are you sure you want to remove this candidate?')) {
+                const confirmed = await confirmRemove('this candidate');
+                if (confirmed) {
                     await this.removeCandidate(candidateId);
                 }
             } else {
@@ -301,7 +302,8 @@ const CandidatesModule = {
         if (removeBtn) {
             removeBtn.addEventListener('click', async () => {
                 const candidateId = removeBtn.dataset.candidateId;
-                if (confirm('Are you sure you want to remove this candidate?')) {
+                const confirmed = await confirmRemove('this candidate');
+                if (confirmed) {
                     await this.removeCandidate(candidateId);
                     this.modal.hide();
                 }

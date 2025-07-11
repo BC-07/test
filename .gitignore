@@ -1,6 +1,33 @@
 
-models/*
-.env
-!models/
-.md/
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
 
+# Models and data
+models/*
+!models/.gitkeep
+
+# Environment
+.env
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Uploads
+temp_uploads/*
+!temp_uploads/.gitkeep
+
+# Logs
+*.log
+logs/

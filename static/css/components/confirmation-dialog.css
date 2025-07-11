@@ -1,0 +1,281 @@
+/* Enhanced Confirmation Dialog Styles */
+
+.confirmation-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.confirmation-dialog-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.confirmation-dialog {
+  background: var(--bg-primary);
+  border-radius: 20px;
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  padding: 0;
+  max-width: 450px;
+  width: 90%;
+  max-height: 90vh;
+  overflow: hidden;
+  transform: scale(0.9) translateY(20px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.confirmation-dialog-overlay.active .confirmation-dialog {
+  transform: scale(1) translateY(0);
+}
+
+.confirmation-dialog-header {
+  background: linear-gradient(135deg, var(--danger-color, #dc3545), #c82333);
+  color: white;
+  padding: 2rem 2rem 1.5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.confirmation-dialog-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+  50% { transform: translate(-50%, -50%) rotate(180deg); }
+}
+
+.confirmation-dialog-icon {
+  width: 70px;
+  height: 70px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  font-size: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.confirmation-dialog-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  position: relative;
+  z-index: 1;
+}
+
+.confirmation-dialog-body {
+  padding: 2rem;
+  text-align: center;
+}
+
+.confirmation-dialog-message {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 0.5rem;
+}
+
+.confirmation-dialog-details {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.confirmation-dialog-actions {
+  padding: 1rem 2rem 2rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.confirmation-dialog-btn {
+  border: none;
+  border-radius: 12px;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  min-width: 120px;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.confirmation-dialog-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.confirmation-dialog-btn:hover::before {
+  left: 100%;
+}
+
+.confirmation-dialog-btn-cancel {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
+}
+
+.confirmation-dialog-btn-cancel:hover {
+  background: var(--bg-tertiary);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.confirmation-dialog-btn-confirm {
+  background: linear-gradient(135deg, var(--danger-color, #dc3545), #c82333);
+  color: white;
+  border: 2px solid transparent;
+}
+
+.confirmation-dialog-btn-confirm:hover {
+  background: linear-gradient(135deg, #c82333, #bd2130);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 20px rgba(220, 53, 69, 0.4);
+}
+
+.confirmation-dialog-btn:active {
+  transform: translateY(0);
+}
+
+/* Success variant */
+.confirmation-dialog.success .confirmation-dialog-header {
+  background: linear-gradient(135deg, var(--success-color, #28a745), #218838);
+}
+
+.confirmation-dialog.success .confirmation-dialog-btn-confirm {
+  background: linear-gradient(135deg, var(--success-color, #28a745), #218838);
+}
+
+.confirmation-dialog.success .confirmation-dialog-btn-confirm:hover {
+  background: linear-gradient(135deg, #218838, #1e7e34);
+  box-shadow: 0 5px 20px rgba(40, 167, 69, 0.4);
+}
+
+/* Warning variant */
+.confirmation-dialog.warning .confirmation-dialog-header {
+  background: linear-gradient(135deg, var(--warning-color, #ffc107), #e0a800);
+}
+
+.confirmation-dialog.warning .confirmation-dialog-btn-confirm {
+  background: linear-gradient(135deg, var(--warning-color, #ffc107), #e0a800);
+  color: var(--text-dark, #212529);
+}
+
+.confirmation-dialog.warning .confirmation-dialog-btn-confirm:hover {
+  background: linear-gradient(135deg, #e0a800, #d39e00);
+  box-shadow: 0 5px 20px rgba(255, 193, 7, 0.4);
+}
+
+/* Info variant */
+.confirmation-dialog.info .confirmation-dialog-header {
+  background: linear-gradient(135deg, var(--info-color, #17a2b8), #138496);
+}
+
+.confirmation-dialog.info .confirmation-dialog-btn-confirm {
+  background: linear-gradient(135deg, var(--info-color, #17a2b8), #138496);
+}
+
+.confirmation-dialog.info .confirmation-dialog-btn-confirm:hover {
+  background: linear-gradient(135deg, #138496, #117a8b);
+  box-shadow: 0 5px 20px rgba(23, 162, 184, 0.4);
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .confirmation-dialog {
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .confirmation-dialog {
+    width: 95%;
+    margin: 1rem;
+  }
+  
+  .confirmation-dialog-header {
+    padding: 1.5rem 1.5rem 1rem;
+  }
+  
+  .confirmation-dialog-body {
+    padding: 1.5rem;
+  }
+  
+  .confirmation-dialog-actions {
+    padding: 1rem 1.5rem 1.5rem;
+    flex-direction: column;
+  }
+  
+  .confirmation-dialog-btn {
+    width: 100%;
+  }
+}
+
+/* Animation classes for entrance */
+@keyframes confirmDialogEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes confirmDialogExit {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+}
+
+.confirmation-dialog.entering {
+  animation: confirmDialogEnter 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.confirmation-dialog.exiting {
+  animation: confirmDialogExit 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}

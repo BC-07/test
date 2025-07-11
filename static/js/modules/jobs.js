@@ -356,7 +356,9 @@ const JobsModule = {
             category,
             experience_level: experience,
             description,
-            requirements: Array.from(this.currentSkills).join(', ')
+            requirements: Array.from(this.currentSkills).join(', '),
+            // Add priority skills (first 3-5 skills could be considered priority)
+            priority_skills: Array.from(this.currentSkills).slice(0, 5).join(', ')
         };
         
         // Add job ID if editing
@@ -388,7 +390,7 @@ const JobsModule = {
 
     // Delete job
     async deleteJob(jobId) {
-        if (!confirm('Are you sure you want to delete this job?')) return;
+        if (!await confirmDelete('this job')) return;
 
         try {
             const result = await APIService.jobs.delete(jobId);

@@ -218,32 +218,60 @@ const UploadModule = {
             return;
         }
 
-        this.showLoadingState(true);
+        // Show enhanced loading with progress
+        const loadingId = LoadingUtils.show({
+            type: 'progress',
+            message: 'Uploading Resumes',
+            subtext: `Processing ${this.selectedFiles.length} file${this.selectedFiles.length > 1 ? 's' : ''}...`
+        });
+
+        // Also show button loading state
+        LoadingUtils.showButtonLoading(this.startUploadBtn, 'Uploading...');
 
         try {
+            // Update loading message for AI processing
+            setTimeout(() => {
+                LoadingUtils.updateMessage(
+                    'AI Processing', 
+                    'Analyzing resumes with artificial intelligence...'
+                );
+            }, 2000);
+
             const result = await APIService.uploadFiles([...this.selectedFiles], this.selectedJobId);
 
             if (result.success) {
-                let message = `Successfully processed ${result.results.length} resumes`;
-                if (result.warnings && result.warnings.length > 0) {
-                    message += ` (${result.warnings.length} files had issues)`;
-                }
-                
-                ToastUtils.showToast(message, result.warnings ? 'warning' : 'success');
-                this.displayRankingResults(result.results);
-                this.updateResultsSummary(result.results);
-                
-                this.clearSelectedFiles();
-                this.fileInput.value = '';
+                // Update to completion message
+                LoadingUtils.updateMessage(
+                    'Processing Complete', 
+                    'Ranking candidates based on job requirements...'
+                );
+
+                // Show success animation briefly
+                setTimeout(() => {
+                    LoadingUtils.hide();
+                    
+                    let message = `Successfully processed ${result.results.length} resumes`;
+                    if (result.warnings && result.warnings.length > 0) {
+                        message += ` (${result.warnings.length} files had issues)`;
+                    }
+                    
+                    ToastUtils.showSuccess(message, { duration: 6000 });
+                    this.displayRankingResults(result.results);
+                    this.updateResultsSummary(result.results);
+                    
+                    this.clearSelectedFiles();
+                    this.fileInput.value = '';
+                }, 1000);
             } else {
                 throw new Error(result.error || 'Upload failed');
             }
 
         } catch (error) {
             console.error('Upload error:', error);
-            ToastUtils.showError(`Upload failed: ${error.message}`);
+            LoadingUtils.hide();
+            ToastUtils.showError(`Upload failed: ${error.message}`, { duration: 8000 });
         } finally {
-            this.showLoadingState(false);
+            LoadingUtils.hideButtonLoading(this.startUploadBtn);
         }
     },
 
