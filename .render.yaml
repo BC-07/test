@@ -3,9 +3,7 @@ services:
     name: alert-now
     env: python
     plan: free
-    envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.4
+    runtime: python-3.11.4
     buildCommand: |
       pip install --upgrade pip setuptools wheel
       pip install -r requirements.txt
