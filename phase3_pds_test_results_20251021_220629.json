@@ -1,0 +1,102 @@
+{
+  "timestamp": "2025-10-21T22:06:29.260248",
+  "tests": [
+    {
+      "test_name": "PDS Extraction Test",
+      "status": "FAIL",
+      "details": {
+        "personal_information": "\u2713 Found 2 items"
+      },
+      "errors": [
+        "Missing section: educational_background",
+        "Missing section: work_experience",
+        "Missing section: training_and_development",
+        "Missing section: civil_service_eligibility",
+        "Failed to extract name"
+      ]
+    },
+    {
+      "test_name": "Assessment Engine Test",
+      "status": "FAIL",
+      "details": {},
+      "errors": [
+        "Exception: 'UniversityAssessmentEngine' object has no attribute 'calculate_candidate_score'"
+      ]
+    },
+    {
+      "test_name": "Database Operations Test",
+      "status": "FAIL",
+      "details": {},
+      "errors": [
+        "Exception: 'DatabaseManager' object has no attribute 'test_connection'"
+      ]
+    },
+    {
+      "test_name": "File Processing Test",
+      "status": "FAIL",
+      "details": {
+        "pdf_extraction": "\u2713 PDF extraction method available",
+        "extract_basic_info_available": "\u2713 extract_basic_info method found",
+        "extract_education_pds_available": "\u2713 extract_education_pds method found",
+        "extract_experience_pds_available": "\u2713 extract_experience_pds method found",
+        "extract_skills_pds_available": "\u2713 extract_skills_pds method found"
+      },
+      "errors": [
+        "DOCX extraction method not found"
+      ]
+    },
+    {
+      "test_name": "Complete PDS Workflow",
+      "status": "FAIL",
+      "details": {
+        "extraction": {
+          "test_name": "PDS Extraction Test",
+          "status": "FAIL",
+          "details": {
+            "personal_information": "\u2713 Found 2 items"
+          },
+          "errors": [
+            "Missing section: educational_background",
+            "Missing section: work_experience",
+            "Missing section: training_and_development",
+            "Missing section: civil_service_eligibility",
+            "Failed to extract name"
+          ]
+        },
+        "assessment": {
+          "test_name": "Assessment Engine Test",
+          "status": "FAIL",
+          "details": {},
+          "errors": [
+            "Exception: 'UniversityAssessmentEngine' object has no attribute 'calculate_candidate_score'"
+          ]
+        },
+        "database": {
+          "test_name": "Database Operations Test",
+          "status": "FAIL",
+          "details": {},
+          "errors": [
+            "Exception: 'DatabaseManager' object has no attribute 'test_connection'"
+          ]
+        },
+        "file_processing": {
+          "test_name": "File Processing Test",
+          "status": "FAIL",
+          "details": {
+            "pdf_extraction": "\u2713 PDF extraction method available",
+            "extract_basic_info_available": "\u2713 extract_basic_info method found",
+            "extract_education_pds_available": "\u2713 extract_education_pds method found",
+            "extract_experience_pds_available": "\u2713 extract_experience_pds method found",
+            "extract_skills_pds_available": "\u2713 extract_skills_pds method found"
+          },
+          "errors": [
+            "DOCX extraction method not found"
+          ]
+        }
+      },
+      "errors": [
+        "Failed tests: 4/4"
+      ]
+    }
+  ]
+}

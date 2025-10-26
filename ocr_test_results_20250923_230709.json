@@ -1,0 +1,73 @@
+{
+  "timestamp": "20250923_230709",
+  "total_images": 8,
+  "successful": 8,
+  "failed": 0,
+  "average_confidence": 17.20375,
+  "results": [
+    {
+      "image": "Sample Daisy_page-0001.jpg",
+      "success": true,
+      "confidence": 26.41,
+      "confidence_level": "very_low",
+      "fields_extracted": 3,
+      "text_length": 437
+    },
+    {
+      "image": "Sample Daisy_page-0002.jpg",
+      "success": true,
+      "confidence": 3.84,
+      "confidence_level": "very_low",
+      "fields_extracted": 0,
+      "text_length": 67
+    },
+    {
+      "image": "Sample Daisy_page-0003.jpg",
+      "success": true,
+      "confidence": 11.61,
+      "confidence_level": "very_low",
+      "fields_extracted": 1,
+      "text_length": 93
+    },
+    {
+      "image": "Sample Daisy_page-0004.jpg",
+      "success": true,
+      "confidence": 37.86,
+      "confidence_level": "very_low",
+      "fields_extracted": 1,
+      "text_length": 129
+    },
+    {
+      "image": "Sample Juan_page-0001.jpg",
+      "success": true,
+      "confidence": 6.64,
+      "confidence_level": "very_low",
+      "fields_extracted": 0,
+      "text_length": 238
+    },
+    {
+      "image": "Sample Juan_page-0002.jpg",
+      "success": true,
+      "confidence": 23.44,
+      "confidence_level": "very_low",
+      "fields_extracted": 0,
+      "text_length": 89
+    },
+    {
+      "image": "Sample Juan_page-0003.jpg",
+      "success": true,
+      "confidence": 17.39,
+      "confidence_level": "very_low",
+      "fields_extracted": 0,
+      "text_length": 102
+    },
+    {
+      "image": "Sample Juan_page-0004.jpg",
+      "success": true,
+      "confidence": 10.44,
+      "confidence_level": "very_low",
+      "fields_extracted": 1,
+      "text_length": 192
+    }
+  ]
+}

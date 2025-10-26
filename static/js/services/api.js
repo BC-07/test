@@ -67,6 +67,17 @@ const APIService = {
         return this.post(CONFIG.API.UPLOAD, formData);
     },
 
+    // Upload Personal Data Sheets
+    async uploadPDS(files, jobId) {
+        const formData = new FormData();
+        files.forEach(file => {
+            formData.append('files[]', file);
+        });
+        formData.append('jobId', jobId);
+
+        return this.post('/api/upload-pds', formData);
+    },
+
     // Job-related API calls
     jobs: {
         async getAll() {
@@ -104,7 +115,8 @@ const APIService = {
     // Candidates API calls
     candidates: {
         async getAll() {
-            return APIService.get(CONFIG.API.CANDIDATES);
+            // Use LSPU-only candidates endpoint
+            return await APIService.get(CONFIG.API.CANDIDATES);
         },
 
         async getById(id) {

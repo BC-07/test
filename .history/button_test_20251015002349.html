@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Button Test</title>
+    <script>
+        function testButtons() {
+            console.log('Testing button detection...');
+            
+            // Test notification button
+            const notificationBtn = document.querySelector('.top-bar-right .btn-icon[title="Notifications"]');
+            console.log('Notification button found:', notificationBtn);
+            
+            // Test help button
+            const helpBtn = document.querySelector('.top-bar-right .btn-icon[title="Help"]');
+            console.log('Help button found:', helpBtn);
+            
+            if (notificationBtn) {
+                notificationBtn.addEventListener('click', function() {
+                    alert('Notification button clicked!');
+                });
+            }
+            
+            if (helpBtn) {
+                helpBtn.addEventListener('click', function() {
+                    alert('Help button clicked!');
+                });
+            }
+        }
+        
+        window.addEventListener('DOMContentLoaded', testButtons);
+    </script>
+</head>
+<body>
+    <div class="top-bar-right">
+        <button class="btn-icon" title="Notifications">
+            <i class="fas fa-bell"></i>
+        </button>
+        <button class="btn-icon" title="Help">
+            <i class="fas fa-question-circle"></i>
+        </button>
+    </div>
+    
+    <p>Click the buttons above to test if they work.</p>
+</body>
+</html>

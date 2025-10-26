@@ -1,0 +1,132 @@
+{
+  "extraction_timestamp": "2025-10-15T21:40:44.273997",
+  "pdf_file": "SamplePDS_Merged.pdf",
+  "text_length": 12711,
+  "extracted_data": {
+    "personal_info": {
+      "email": "yolola5279@gmail.com",
+      "mobile": "09451681106",
+      "telephone": [
+        "2026 123 2026",
+        "2345\n543216",
+        "0987600480",
+        "09451681106",
+        "20220918-015",
+        "20210314-042",
+        "20230125-0093",
+        "20200730-101"
+      ],
+      "date_of_birth": "DECEMBER 10 2003",
+      "civil_status": "Single",
+      "citizenship": "Filipino",
+      "sex": "Male"
+    },
+    "education": [
+      {
+        "level": "Elementary",
+        "raw_text": "ELEMENTARY 02/07/2010 08/07/2016 90 2016 Achiever",
+        "year": "2010"
+      },
+      {
+        "level": "Secondary",
+        "raw_text": "SECONDARY 08/07/2016 14/07/2020 90 2020 With Honors",
+        "year": "2016"
+      },
+      {
+        "level": "Vocational",
+        "raw_text": "VOCATIONAL /                                                                                                                                                                                                        \nTRADE COURSE12/07/2020 14/07/2022 90 2022 With Honors",
+        "year": "2020"
+      },
+      {
+        "level": "College",
+        "raw_text": "COLLEGE 14/07/2022 18/07/2026 123 2026 Cum Laude",
+        "year": "2022"
+      },
+      {
+        "level": "Graduate",
+        "raw_text": "GRADUATE STUDIES N/a N/a N/aBachelor of Science in Computer ScienceN/A\nN/A\nN/A\n(Continue on separate sheet if necessary) DimayugaN/a\nPERIOD OF ATTENDANCEMOTHER'S MAIDEN NAMEN/AN/a\nN/aREAD THE ATTACHED GUIDE TO FILLING OUT THE PERSONAL DATA SHEET (PDS) BEFORE ACCOMPLISHING THE PDS FORM.\nStreet\nSITIO SALA LUMINGON\nSubdivision/Village\n10.\n11.AB+\n12345\n543216\nn/a7.CIVIL STATUSDATE OF BIRTH \n(mm/dd/yyyy)  NAME EXTENSION (JR., SR)                                           \nN/a\nN/a\nN/aDECEMBER 10 2003\nplease indicate the details.If holder of  dual citizenship, \n67890Pls. indicate country:\nN/A\n80\nHouse/Block/Lot No. Street\nSubdivision/Village BarangayHouse/Block/Lot No.00480\n4325SAN JUAN BATANGAS\n0987600480\n09451681106\nyolola5279@gmail.com\nN/A\nN/A\nN/A1.65\n9.HEIGHT (m)\nWEIGHT (kg)\nBLOOD TYPE\nGSIS ID NO.\nPAG-IBIG ID NO.TIAONG QUEZON\n4325PERSONAL DATA SHEET\nI. PERSONAL INFORMATION (Do not fill up. For CSC use only)\nSCHOLARSHIP/ \nACADEMIC \nHONORS \nRECEIVEDDATE OF BIRTH (mm/dd/yyyy) \n26. YEAR \nGRADUATED     YOLOLA\n                                                                                                                               11111\nN/aSURNAME\nFIRST NAME\nMIDDLE NAME\nZIP CODE    \nNAME EXTENSION (JR., SR)                                     14. TIN NO. 12345\nn/a\nn/a\nN/AWARNING: Any misrepresentation made in the Personal Data Sheet and the Work Experience Sheet shall cause the filing of administrative/criminal case/s against the person \nconcerned.\nN/aLEVELNAME OF SCHOOL                                                                                                                                         \n(Write in full)\nSaint John Parochial School\nRecto Memorial National HighSchool\nRecto Memorial National HighSchool\nLaguna State Polytechnic University\nN/a                                                                                                       Barangay\nTIAONG QUEZON\nProvince City/Municipality\nCity/Municipality ProvinceN/A\nZIP CODE    \nN/a9865562SITIO SALA LUMINGON\n23. NAME of CHILDREN  (Write full name and list all)\nN/a\n                               CS FORM 212 (Revised 2017), Page 1 of 4SIGNATURE(Continue on separate sheet if necessary)\nSeptember 19 2025N/a\nN/a\nN/a\nN/aN/A\nN/A\nN/AArnel\nDe Torres\nLenar Andrei Yolola DATEHIGHEST LEVEL/                     \nUNITS EARNED       \n(if not graduated)\nElementary educationYolola\nPrimne\nMyleenNAME EXTENSION (JR., SR)                                                  \nBASIC EDUCATION/DEGREE/COURSE                                                             \n(Write in full)                     \nHighschool Education\nScience Technology Engineering and \nMathematicsCSForm No. 212\nRevised 2017\nFilipino\n Dual Citizenship\nMale\n Female\nSingle\n Married\nWidowed\nOther/s:\nSeparated\nby birth \n by naturalization \n27.\nNUMBERDate of\nValidity\n0.8 CSE-P-\n20220918-015Permanent\n0.8 CSE-SP-\n20210314-042Permanent\n0.8 CES-20201122-\n0035 years\n0.8 CSEE-\n20230125-0093 years\n0.8 CE-20230612-\n202\t Indefinite\nPassRA1080-\n20200730-101Indefinite\nN/A D-23-045678 3 years\n(Include private employment.  Start from your recent work) Description of duties should be indicated in the attached Work Experience sheet.\n28.\nTo\n09/15/2025 45000.00 SG-24/Step \n1Permanent \tY\n12/31/2021 18000.00 SG-08/Step \n2Permanent \tY\n\t 05/30/2018 15000.00 N/A Contractual N\n\t 12/31/2015 5000.00 N/A Internship N\nDATE September 19 2025STATUS OF \nAPPOINTMENT\nSIGNATUREHR Assistant Intern Ayala Land Inc.\n(Continue on separate sheet if necessary)02/01/201506/01/2018 Administrative Assistant Department of Education Tiaong District\nCustomer Service Representative XYZ Solutions Inc.",
+        "school": "LEVELNAME OF SCHOOL",
+        "year": "2003"
+      }
+    ],
+    "work_experience": [
+      {
+        "position": "Data Analyst",
+        "raw_context": "LUSIVE DATES \n(mm/dd/yyyy)\n01/05/2022(Continue on separate sheet if necessary)\nV.  WORK EXPERIENCE \nData Analyst\n07/10/201615/08/202325/01/2023\n12/06/2023\n30/07/2020Board Licensure Exam \u2013 Civil Engineer\nBarangay ",
+        "dates": [
+          "01/05/2022",
+          "07/10/2016",
+          "15/08/2023",
+          "25/01/2023",
+          "12/06/2023",
+          "30/07/2020"
+        ]
+      },
+      {
+        "position": "Administrative Assistant",
+        "raw_context": "REHR Assistant Intern Ayala Land Inc.\n(Continue on separate sheet if necessary)02/01/201506/01/2018 Administrative Assistant Department of Education Tiaong District\nCustomer Service Representative XYZ Solutions Inc.Civil Ser",
+        "dates": [
+          "02/01/2015",
+          "06/01/2018"
+        ]
+      }
+    ],
+    "eligibility": [
+      {
+        "type": "CSE-P",
+        "context": "by naturalization \n27.\nNUMBERDate of\nValidity\n0.8 CSE-P-\n20220918-015Permanent\n0.8 CSE-SP-\n20210314-042Permanent\n0.8 CES-20201122-\n0035 years\n0.8 CSEE-\n202",
+        "rating": "27.",
+        "date": "20220918"
+      },
+      {
+        "type": "CSE-SP",
+        "context": "of\nValidity\n0.8 CSE-P-\n20220918-015Permanent\n0.8 CSE-SP-\n20210314-042Permanent\n0.8 CES-20201122-\n0035 years\n0.8 CSEE-\n20230125-0093 years\n0.8 CE-20230612-",
+        "rating": "0.8",
+        "date": "20220918"
+      },
+      {
+        "type": "CES",
+        "context": "15Permanent\n0.8 CSE-SP-\n20210314-042Permanent\n0.8 CES-20201122-\n0035 years\n0.8 CSEE-\n20230125-0093 years\n0.8 CE-20230612-\n202\t Indefinite\nPassRA1080-\n202",
+        "rating": "15",
+        "date": "20210314"
+      },
+      {
+        "type": "CES",
+        "context": "ERVICE/ RA 1080 (BOARD/ BAR) UNDER \nSPECIAL LAWS/ CES/ CSEE                                                    \nBARANGAY ELIGIBILITY / DRIVER'S LICENSEDA",
+        "rating": "1080"
+      },
+      {
+        "type": "CES",
+        "context": "ice, Manila Career Executive Service Eligibility (CES)\nSALARY/ JOB/ PAY \nGRADE (if \napplicable)& STEP  \n(Format \"00-0\")/ \nINCREMENT FromPOSITION TITLE",
+        "rating": "00"
+      },
+      {
+        "type": "CES",
+        "context": "ID No: \nc. \nIf YES, please specify ID No: \nREFERENCES (Person not related by consanguinity or affinity to applicant /appointee)\nADDRESS\nSan Pablo City La"
+      },
+      {
+        "type": "CSEE",
+        "context": "314-042Permanent\n0.8 CES-20201122-\n0035 years\n0.8 CSEE-\n20230125-0093 years\n0.8 CE-20230612-\n202\t Indefinite\nPassRA1080-\n20200730-101Indefinite\nN/A D-23-0",
+        "rating": "314",
+        "date": "20201122"
+      },
+      {
+        "type": "CSEE",
+        "context": "ility (RA 1080)Career Service Exam for Engineers (CSEE)\nDEPARTMENT / AGENCY / OFFICE / COMPANY",
+        "rating": "1080"
+      },
+      {
+        "type": "CSEE",
+        "context": "E/ RA 1080 (BOARD/ BAR) UNDER \nSPECIAL LAWS/ CES/ CSEE                                                    \nBARANGAY ELIGIBILITY / DRIVER'S LICENSEDATE OF",
+        "rating": "1080"
+      }
+    ]
+  },
+  "extraction_quality": {
+    "has_name": false,
+    "has_email": true,
+    "has_education": true,
+    "has_work_experience": true,
+    "has_eligibility": true
+  }
+}

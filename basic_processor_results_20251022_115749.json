@@ -1,0 +1,130 @@
+{
+  "educational_background": [
+    {
+      "level": "26.",
+      "school": "LEVEL",
+      "degree_course": "NAME OF SCHOOL                                                                                                                                         (Write in full)",
+      "year_graduated": "BASIC EDUCATION/DEGREE/COURSE                                                             (Write in full)                     ",
+      "honors": "PERIOD OF ATTENDANCE"
+    },
+    {
+      "level": "From",
+      "school": "To",
+      "degree_course": "Congo, Democratic Republic of the",
+      "year_graduated": "N/A",
+      "honors": "N/A"
+    },
+    {
+      "level": "ELEMENTARY",
+      "school": "Saint John Parochial School",
+      "degree_course": "Elementary education",
+      "year_graduated": "2010-07-02 00:00:00",
+      "honors": "2016-07-08 00:00:00"
+    },
+    {
+      "level": "SECONDARY",
+      "school": "Recto Memorial National HighSchool",
+      "degree_course": "Highschool Education",
+      "year_graduated": "2016-07-08 00:00:00",
+      "honors": "2020-07-14 00:00:00"
+    },
+    {
+      "level": "VOCATIONAL /                                                                                                                                                                                                        TRADE COURSE",
+      "school": "Recto Memorial National HighSchool",
+      "degree_course": "Science Technology Engineering and Mathematics",
+      "year_graduated": "2020-07-12 00:00:00",
+      "honors": "2022-07-14 00:00:00"
+    },
+    {
+      "level": "COLLEGE",
+      "school": "Laguna State Polytechnic University",
+      "degree_course": "Bachelor of Science in Computer Science",
+      "year_graduated": "2022-07-14 00:00:00",
+      "honors": "2026-07-18 00:00:00"
+    },
+    {
+      "level": "GRADUATE STUDIES ",
+      "school": "N/a                                                                                                       ",
+      "degree_course": "N/a",
+      "year_graduated": "N/a",
+      "honors": "N/a"
+    }
+  ],
+  "work_experience": [
+    {
+      "position": "Print legibly. Tick appropriate boxes (     ) and use separate sheet if necessary. Indicate N/A if not applicable.  DO NOT ABBREVIATE.",
+      "company": "1. CS ID No.",
+      "date_from": " (Do not fill up. For CSC use only)",
+      "date_to": "N/A",
+      "salary": "N/A",
+      "grade": "N/A"
+    },
+    {
+      "position": "2.",
+      "company": "SURNAME",
+      "date_from": "YOLOLA",
+      "date_to": "N/A",
+      "salary": "N/A",
+      "grade": "N/A"
+    },
+    {
+      "position": "FIRST NAME",
+      "company": "LENAR ANDREI",
+      "date_from": "NAME EXTENSION (JR., SR)                                           ",
+      "date_to": "Married",
+      "salary": "Please indicate country:",
+      "grade": "N/A"
+    },
+    {
+      "position": "MIDDLE NAME",
+      "company": "PRIMNE",
+      "date_from": "Widow/er",
+      "date_to": "Afghanistan",
+      "salary": "N/A",
+      "grade": "N/A"
+    },
+    {
+      "position": "3.",
+      "company": "DATE OF BIRTH \n(mm/dd/yyyy)  ",
+      "date_from": "DECEMBER 10 2003",
+      "date_to": "16. CITIZENSHIP",
+      "salary": "Separated",
+      "grade": "Albania"
+    },
+    {
+      "position": "4.",
+      "company": "PLACE OF BIRTH",
+      "date_from": "SAN JUAN BATANGAS",
+      "date_to": "If holder of  dual citizenship, ",
+      "salary": "Pls. indicate country:",
+      "grade": "Solo Parent"
+    },
+    {
+      "position": "5.",
+      "company": "SEX",
+      "date_from": "please indicate the details.",
+      "date_to": "Others",
+      "salary": "Andorra",
+      "grade": "N/A"
+    },
+    {
+      "position": "6",
+      "company": "CIVIL STATUS",
+      "date_from": "17. RESIDENTIAL ADDRESS",
+      "date_to": "00480",
+      "salary": "Angola",
+      "grade": "N/A"
+    },
+    {
+      "position": "House/Block/Lot No.",
+      "company": "Street",
+      "date_from": "Antigua and Barbuda",
+      "date_to": "N/A",
+      "salary": "N/A",
+      "grade": "N/A"
+    }
+  ],
+  "learning_development": [],
+  "civil_service_eligibility": [],
+  "voluntary_work": []
+}

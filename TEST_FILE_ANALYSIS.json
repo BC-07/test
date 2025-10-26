@@ -1,0 +1,55 @@
+{
+  "total_files": 30,
+  "safe_to_remove": [
+    "test_app_pdf_integration.py",
+    "test_complete_fixes.py",
+    "test_complete_workflow.py",
+    "test_comprehensive_comparison.py",
+    "test_detailed_comparison.py",
+    "test_education_fix.py",
+    "test_enhanced_extraction.py",
+    "test_essential_extraction.py",
+    "test_file_analyzer.py",
+    "test_final_comparison.py",
+    "test_final_validation.py",
+    "test_final_workflow.py",
+    "test_job_integration.py",
+    "test_merged_pdf.py",
+    "test_pdf_analysis.py",
+    "test_pdf_direct.py",
+    "test_pdf_integration.py",
+    "test_pds_detection_fix.py",
+    "test_real_data_only.py",
+    "test_simple_comparison.py",
+    "test_system_integration.py",
+    "test_work_extraction.py",
+    "debug_education_names.py",
+    "debug_exact_structure.py",
+    "debug_mapping.py",
+    "debug_multipage_pdf.py",
+    "debug_pdf_extraction.py",
+    "debug_raw_pds_data.py"
+  ],
+  "critical_imports": [],
+  "potential_issues": [
+    {
+      "file": "test_actual_workflow.py",
+      "reason": "Has classes and imports main modules",
+      "imports": [
+        "app",
+        "utils"
+      ]
+    },
+    {
+      "file": "test_upload_workflow.py",
+      "reason": "Has classes and imports main modules",
+      "imports": [
+        "utils",
+        "database",
+        "assessment_engine",
+        "clean_upload_handler"
+      ]
+    }
+  ],
+  "recommendation": "CAUTION"
+}

@@ -22,6 +22,18 @@ ResuAI is an advanced resume screening and job recommendation web application po
 - **Experience Level Detection**: Automatically determines candidate seniority
 - **Career Transition Support**: Better matching for candidates with non-standard backgrounds
 
+### 🔐 Authentication & User Management
+- **Secure Login System**: Session-based authentication with Flask-Login
+- **Role-Based Access Control**: Admin and regular user permissions
+- **User Management Dashboard**: Admin can create, edit, and manage user accounts
+- **Password Security**: Bcrypt hashing with salt for secure password storage
+- **Admin Privileges**: Grant/revoke admin access, manage user accounts
+- **Session Management**: Secure logout and session handling
+
+### Default Admin Account
+- **Email**: `admin@resumeai.com`
+- **Password**: `admin123` (change after first login)
+
 ## 📋 Prerequisites
 
 Before setting up ResuAI, ensure you have:

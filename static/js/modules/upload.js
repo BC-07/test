@@ -1,552 +1,1525 @@
-// Upload Module
+// Enhanced Upload Module with simplified digital document focus
 const UploadModule = {
     selectedJobId: null,
     selectedFiles: [],
+    processingType: 'pds',  // Always use PDS processing
+    uploadMode: 'regular', // Always use regular (digital documents only)
+    isUploading: false,
+    isAnalyzing: false,  // Track analysis state
+    currentBatch: null,  // Store batch info for analysis
+    jobs: [], // Store loaded jobs for reference
 
     // Initialize upload functionality
     init() {
+        console.log('🚀 UploadModule.init() called');
         this.setupElements();
         this.setupEventListeners();
-        this.loadJobCategories(); // Load job categories on init
+        this.loadJobPostings();
+        // Always use PDS processing - no selector needed
+        this.processingType = 'pds';
+        // Always use regular mode - digital documents only
+        this.uploadMode = 'regular';
+        console.log('✅ UploadModule initialized successfully');
     },
 
-    // Setup DOM elements
-    setupElements() {
-        this.uploadZone = document.getElementById('uploadZone');
-        this.uploadArea = document.getElementById('uploadArea');
-        this.fileInput = document.getElementById('resumeUpload');
-        this.uploadPreview = document.getElementById('uploadPreview');
-        this.startUploadBtn = document.getElementById('startUploadBtn');
-        this.clearFilesBtn = document.getElementById('clearFilesBtn');
+    // Initialize PDS upload specifically
+    initPDSUpload() {
+        this.processingType = 'pds';
+        this.uploadMode = 'regular';
+        this.setupElements();
+        this.setupEventListeners();
+        this.loadJobPostings();
+    },
+
+    // No longer needed - removed OCR tab switching
+    // Upload mode is always 'regular' for digital documents
+            if (uploadStats) uploadStats.textContent = 'OCR';
+        }
         
-        // Debug logging
-        console.log('Upload elements found:', {
-            uploadZone: !!this.uploadZone,
-            uploadArea: !!this.uploadArea,
-            fileInput: !!this.fileInput
-        });
+        // Re-setup elements for the new mode
+        this.setupFileInput();
+        this.setupUploadZone();
+        
+        // If a job is already selected, update the display for the new mode
+        if (this.selectedJobId) {
+            this.updateJobSelectionDisplay();
+        }
+        
+        if (typeof ToastUtils !== 'undefined') {
+            const modeText = mode === 'regular' ? 'Regular Files' : 'Scanned Documents (OCR)';
+            ToastUtils.showInfo(`Switched to ${modeText} upload mode`);
+        }
     },
 
-    // Setup event listeners
-    setupEventListeners() {
-        if (!this.fileInput) {
-            console.error('File input element not found!');
+    // Setup DOM elements and event listeners
+    setupElements() {
+        this.setupFileInput();
+        this.setupUploadZone();
+        this.setupButtons();
+    },
+
+    setupFileInput() {
+        // Setup file input for digital documents only
+        const regularInput = document.getElementById('regularFileUpload');
+        
+        if (regularInput) {
+            // Remove any existing listeners to prevent duplicates
+            const boundHandler = this.handleFileSelection.bind(this);
+            regularInput.removeEventListener('change', boundHandler);
+            regularInput.addEventListener('change', boundHandler);
+        }
+        
+        // Legacy support for existing resumeUpload input
+        const legacyInput = document.getElementById('resumeUpload');
+        
+        if (legacyInput && !regularInput) {
+            const boundHandler = this.handleFileSelection.bind(this);
+            legacyInput.removeEventListener('change', boundHandler);
+            legacyInput.addEventListener('change', boundHandler);
+        }
+    },
+
+    setupUploadZone() {
+        // Setup upload zone for digital documents only
+        const regularZone = document.getElementById('regularUploadZone');
+        
+        // Setup regular upload zone
+        if (regularZone) {
+            this.setupZoneEvents(regularZone, 'regular');
+        }
+        
+        // Also try legacy IDs for backward compatibility
+        const legacyZoneIds = ['resumeUploadZone', 'uploadZone'];
+        for (const id of legacyZoneIds) {
+            const uploadZone = document.getElementById(id);
+            if (uploadZone) {
+                this.setupZoneEvents(uploadZone, 'regular');
+            }
+        }
+    },
+
+    setupZoneEvents(uploadZone, mode) {
+        if (!uploadZone) {
+            console.log('❌ setupZoneEvents: uploadZone is null');
             return;
         }
-
-        // Click to upload - try multiple elements
-        const clickableElements = [
-            this.uploadZone,
-            this.uploadArea,
-            document.querySelector('.upload-drop-zone'),
-            document.querySelector('[data-upload-zone]')
-        ].filter(Boolean);
-
-        clickableElements.forEach(element => {
-            if (element) {
-                element.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    console.log('Upload area clicked, opening file browser...');
-                    this.fileInput.click();
-                });
-            }
+        
+        console.log('🎯 Setting up events for upload zone:', uploadZone.id);
+        
+        // Remove any existing onclick handlers
+        uploadZone.removeAttribute('onclick');
+        
+        // Add proper event listeners with bound context
+        uploadZone.addEventListener('click', () => {
+            console.log('🖱️ Upload zone clicked!');
+            this.triggerFileUpload(mode);
         });
-
-        // Also try to find and attach to any "click to browse" text
-        const browseLinks = document.querySelectorAll('a[href="#"], .browse-link, .click-to-browse');
-        browseLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                console.log('Browse link clicked, opening file browser...');
-                this.fileInput.click();
+        uploadZone.addEventListener('dragover', this.handleDragOver.bind(this));
+        uploadZone.addEventListener('dragleave', this.handleDragLeave.bind(this));
+        uploadZone.addEventListener('drop', this.handleDrop.bind(this));
+        
+        // Also setup browse link
+        const browseLink = uploadZone.querySelector('.browse-link');
+        if (browseLink) {
+            console.log('🔗 Setting up browse link');
+            browseLink.removeAttribute('onclick');
+            browseLink.addEventListener('click', (e) => {
+                console.log('🔗 Browse link clicked!');
+                e.stopPropagation();
+                this.triggerFileUpload(mode);
             });
-        });
+        }
+        
+        console.log('✅ Event handlers set up for:', uploadZone.id);
+    },
 
-        // Global fallback - listen for any click on elements containing "browse" text
-        document.addEventListener('click', (e) => {
-            const target = e.target;
-            const text = target.textContent || '';
-            if (text.toLowerCase().includes('browse') || text.toLowerCase().includes('click to')) {
-                const uploadSection = target.closest('#upload, .upload-section, [data-section="upload"]');
-                if (uploadSection && this.fileInput) {
-                    e.preventDefault();
-                    console.log('Global browse handler triggered');
-                    this.fileInput.click();
+    setupButtons() {
+        // Setup clear button
+        const clearBtnIds = ['resumeClearFilesBtn', 'clearFilesBtn'];
+        for (const id of clearBtnIds) {
+            const clearBtn = document.getElementById(id);
+            if (clearBtn) {
+                clearBtn.addEventListener('click', () => this.clearFiles());
+                break;
+            }
+        }
+
+        // Setup upload button
+        const uploadBtnIds = ['resumeStartUploadBtn', 'startUploadBtn'];
+        for (const id of uploadBtnIds) {
+            const uploadBtn = document.getElementById(id);
+            if (uploadBtn) {
+                uploadBtn.addEventListener('click', () => this.startUpload());
+                break;
+            }
+        }
+    },
+
+    setupEventListeners() {
+        // This method is called from init and initResumeUpload
+        // Most event listeners are now set up in setupElements
+    },
+
+    // Trigger file upload dialog
+    triggerFileUpload(mode = 'regular') {
+        console.log('🚀 triggerFileUpload called with mode:', mode);
+        
+        // Always use regular mode for digital documents
+        let fileInput = document.getElementById('regularFileUpload');
+        console.log('📍 Found regularFileUpload:', fileInput);
+        
+        // Fallback to legacy IDs if new ones not found
+        if (!fileInput) {
+            console.log('⚠️ Trying fallback file input IDs...');
+            const fileInputIds = ['resumeUpload', 'resumeFileUpload', 'fileUpload'];
+            for (const id of fileInputIds) {
+                fileInput = document.getElementById(id);
+                if (fileInput) {
+                    console.log(`✅ Found fallback: ${id}`);
+                    break;
                 }
             }
-        });
-
-        // Drag and drop
-        this.uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            this.uploadArea.classList.add('drag-over');
-        });
-
-        this.uploadArea.addEventListener('dragleave', (e) => {
-            e.preventDefault();
-            this.uploadArea.classList.remove('drag-over');
-        });
-
-        this.uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            this.uploadArea.classList.remove('drag-over');
-            this.handleFiles(e.dataTransfer.files);
-        });
-
-        // File input change
-        this.fileInput.addEventListener('change', (e) => {
-            this.handleFiles(e.target.files);
-        });
-
-        // Button listeners
-        if (this.clearFilesBtn) {
-            this.clearFilesBtn.addEventListener('click', () => {
-                this.clearSelectedFiles();
-            });
         }
-
-        if (this.startUploadBtn) {
-            this.startUploadBtn.addEventListener('click', () => {
-                this.startUpload();
-            });
-        }
-    },
-
-    // Handle file selection
-    handleFiles(files) {
-        this.clearSelectedFiles();
         
-        const newFiles = Array.from(files).filter(file => {
-            const validation = ValidationUtils.validateFile(file);
-            
-            if (!validation.isValid) {
-                validation.errors.forEach(error => {
-                    ToastUtils.showWarning(error);
-                });
-                return false;
-            }
-            
-            return true;
-        });
-
-        this.selectedFiles = newFiles;
-        this.updatePreview();
+        if (fileInput) {
+            console.log('✅ Triggering file input click');
+            fileInput.click();
+            console.log('✅ File input click completed');
+        } else {
+            console.error('❌ No file input found!');
+        }
     },
 
-    // Update file preview
-    updatePreview() {
-        if (!this.uploadPreview) return;
+    // Handle file selection from input
+    handleFileSelection(event) {
+        const files = Array.from(event.target.files);
+        if (files.length === 0) return;
+        
+        // Clear existing files when new files are selected
+        this.selectedFiles = [];
+        this.addFiles(files);
+        
+        // Clear the input to allow selecting the same files again
+        event.target.value = '';
+    },
+
+    // Handle drag over
+    handleDragOver(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.dataTransfer.dropEffect = 'copy';
+        
+        const uploadZone = event.currentTarget;
+        uploadZone.classList.add('drag-over');
+    },
+
+    // Handle drag leave
+    handleDragLeave(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const uploadZone = event.currentTarget;
+        uploadZone.classList.remove('drag-over');
+    },
+
+    // Handle file drop
+    handleDrop(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const uploadZone = event.currentTarget;
+        uploadZone.classList.remove('drag-over');
+        
+        const files = Array.from(event.dataTransfer.files);
+        
+        // Clear existing files when new files are dropped, same as file selection
+        this.selectedFiles = [];
+        this.addFiles(files);
+    },
+
+    // Add files to the selection
+    addFiles(newFiles) {
+        if (!Array.isArray(newFiles)) return;
+
+        // Filter files based on upload mode
+        let allowedExtensions;
+        let expectedFormats;
+        
+        if (this.uploadMode === 'ocr') {
+            allowedExtensions = ['jpg', 'jpeg', 'png', 'tiff', 'tif', 'bmp', 'gif', 'pdf'];
+            expectedFormats = 'JPG, PNG, TIFF, BMP, PDF files for OCR processing';
+        } else {
+            // Always use PDS processing - support Excel PDS and document formats
+            allowedExtensions = ['xlsx', 'xls', 'pdf', 'docx', 'txt'];
+            expectedFormats = 'Excel (.xlsx, .xls), PDF, DOCX, or TXT files';
+        }
+
+        const validFiles = newFiles.filter(file => {
+            const extension = file.name.toLowerCase().split('.').pop();
+            return allowedExtensions.includes(extension);
+        });
+
+        if (validFiles.length !== newFiles.length) {
+            if (typeof ToastUtils !== 'undefined') {
+                ToastUtils.showWarning(`Only ${expectedFormats} are supported`);
+            }
+        }
+
+        // Add valid files
+        this.selectedFiles.push(...validFiles);
+        this.updateFilePreview();
+        this.updateUploadButton();
+    },
+
+    // Update file preview display
+    updateFilePreview() {
+        // Select preview container based on current upload mode
+        let preview = null;
+        if (this.uploadMode === 'ocr') {
+            preview = document.getElementById('ocrUploadPreview');
+        } else {
+            preview = document.getElementById('regularUploadPreview');
+        }
+        
+        // Fallback to legacy IDs if new ones not found
+        if (!preview) {
+            const previewIds = ['resumeUploadPreview', 'uploadPreview'];
+            for (const id of previewIds) {
+                preview = document.getElementById(id);
+                if (preview) break;
+            }
+        }
+
+        if (!preview) return;
 
         if (this.selectedFiles.length === 0) {
-            this.uploadPreview.innerHTML = '';
-            this.updateUploadButtonState();
+            preview.style.display = 'none';
+            this.hideUploadActions();
             return;
         }
 
-        this.uploadPreview.innerHTML = this.selectedFiles.map((file, index) => {
-            const fileExt = file.name.split('.').pop().toLowerCase();
-            const fileIcon = this.getFileIcon(fileExt);
+        // Show file list
+        preview.innerHTML = this.selectedFiles.map((file, index) => `
+            <div class="file-item" data-index="${index}">
+                <div class="file-icon">
+                    <i class="fas ${this.getFileIcon(file.name)}"></i>
+                </div>
+                <div class="file-info">
+                    <span class="file-name">${file.name}</span>
+                    <span class="file-size">${this.formatFileSize(file.size)}</span>
+                </div>
+                <button class="btn btn-sm btn-outline-danger" onclick="UploadModule.removeFile(${index})">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `).join('');
+
+        preview.style.display = 'block';
+        this.showUploadActions();
+        this.updateUploadStats();
+    },
+
+    // Get appropriate icon for file type
+    getFileIcon(filename) {
+        const extension = filename.toLowerCase().split('.').pop();
+        switch (extension) {
+            case 'pdf': return 'fa-file-pdf text-danger';
+            case 'docx': case 'doc': return 'fa-file-word text-primary';
+            case 'xlsx': case 'xls': return 'fa-file-excel text-success';
+            case 'txt': return 'fa-file-alt text-secondary';
+            case 'jpg': case 'jpeg': case 'png': case 'gif': case 'bmp': case 'tiff': case 'tif': 
+                return 'fa-file-image text-warning';
+            default: return 'fa-file text-muted';
+        }
+    },
+
+    // Format file size for display
+    formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    },
+
+    // Remove file from selection
+    removeFile(index) {
+        this.selectedFiles.splice(index, 1);
+        this.updateFilePreview();
+        this.updateUploadButton();
+    },
+
+    // Clear all files
+    clearFiles() {
+        this.selectedFiles = [];
+        this.updateFilePreview();
+        this.updateUploadButton();
+
+        // Reset all file inputs
+        const fileInputIds = ['regularFileUpload', 'ocrFileUpload', 'resumeUpload', 'resumeFileUpload', 'fileUpload'];
+        for (const id of fileInputIds) {
+            const fileInput = document.getElementById(id);
+            if (fileInput) {
+                fileInput.value = '';
+            }
+        }
+    },
+
+    // Reset entire upload state (new method)
+    resetUploadState() {
+        this.clearFiles();
+        this.currentBatch = null;
+        this.isUploading = false;
+        this.isAnalyzing = false;
+        
+        // Reset upload button visibility and state
+        const uploadBtnIds = ['resumeStartUploadBtn', 'startUploadBtn'];
+        for (const id of uploadBtnIds) {
+            const uploadBtn = document.getElementById(id);
+            if (uploadBtn) {
+                const loader = uploadBtn.querySelector('.btn-loader');
+                const span = uploadBtn.querySelector('span');
+                const icon = uploadBtn.querySelector('i:not(.btn-loader i)');
+                
+                if (loader) loader.style.display = 'none';
+                if (span) span.textContent = 'Upload Files';
+                if (icon) {
+                    icon.className = 'fas fa-upload me-2';
+                }
+                
+                uploadBtn.style.display = 'block';
+                uploadBtn.disabled = true; // Will be enabled when files are selected
+                uploadBtn.className = 'btn btn-primary btn-lg'; // Reset to primary color
+                
+                // Remove analysis listener and add upload listener
+                const newBtn = uploadBtn.cloneNode(true);
+                uploadBtn.parentNode.replaceChild(newBtn, uploadBtn);
+                newBtn.addEventListener('click', () => this.startUpload());
+                
+                break;
+            }
+        }
+        
+        // Hide results step
+        const resultStepIds = ['resumeResultsStep', 'resultsStep'];
+        for (const id of resultStepIds) {
+            const resultsStep = document.getElementById(id);
+            if (resultsStep) {
+                resultsStep.style.display = 'none';
+                break;
+            }
+        }
+    },
+
+    // Show upload actions
+    showUploadActions() {
+        const actionIds = ['resumeUploadActions', 'uploadActions'];
+        for (const id of actionIds) {
+            const actions = document.getElementById(id);
+            if (actions) {
+                actions.style.display = 'block';
+                break;
+            }
+        }
+    },
+
+    // Hide upload actions
+    hideUploadActions() {
+        const actionIds = ['resumeUploadActions', 'uploadActions'];
+        for (const id of actionIds) {
+            const actions = document.getElementById(id);
+            if (actions) {
+                actions.style.display = 'none';
+                break;
+            }
+        }
+    },
+
+    // Update upload statistics
+    updateUploadStats() {
+        const fileCountIds = ['resumeFileCount', 'fileCount'];
+        const totalSizeIds = ['resumeTotalSize', 'totalSize'];
+        
+        // Update file count
+        for (const id of fileCountIds) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.textContent = `${this.selectedFiles.length} file${this.selectedFiles.length !== 1 ? 's' : ''} selected`;
+                break;
+            }
+        }
+
+        // Update total size
+        const totalBytes = this.selectedFiles.reduce((sum, file) => sum + file.size, 0);
+        for (const id of totalSizeIds) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.textContent = this.formatFileSize(totalBytes);
+                break;
+            }
+        }
+    },
+
+    // Update upload button state and text
+    updateUploadButton() {
+        const uploadBtnIds = ['resumeStartUploadBtn', 'startUploadBtn'];
+        
+        for (const id of uploadBtnIds) {
+            const uploadBtn = document.getElementById(id);
+            if (uploadBtn) {
+                const shouldEnable = this.selectedFiles.length > 0 && this.selectedJobId;
+                uploadBtn.disabled = !shouldEnable;
+                
+                // Update button text to reflect direct analysis
+                const span = uploadBtn.querySelector('span');
+                const icon = uploadBtn.querySelector('i:not(.btn-loader i)');
+                
+                if (shouldEnable) {
+                    if (span) span.textContent = `Start Analysis (${this.selectedFiles.length} file${this.selectedFiles.length !== 1 ? 's' : ''})`;
+                    if (icon) icon.className = 'fas fa-chart-line me-2';
+                    uploadBtn.classList.remove('btn-secondary');
+                    uploadBtn.classList.add('btn-primary');
+                } else if (!this.selectedJobId) {
+                    if (span) span.textContent = 'Select a job position first';
+                    if (icon) icon.className = 'fas fa-briefcase me-2';
+                    uploadBtn.classList.remove('btn-primary');
+                    uploadBtn.classList.add('btn-secondary');
+                } else {
+                    if (span) span.textContent = 'Select files to analyze';
+                    if (icon) icon.className = 'fas fa-upload me-2';
+                    uploadBtn.classList.remove('btn-primary');
+                    uploadBtn.classList.add('btn-secondary');
+                }
+                break;
+            }
+        }
+    },
+
+    // Start complete upload and analysis process (simplified single-step flow)
+    async startUpload() {
+        if (this.selectedFiles.length === 0 || !this.selectedJobId || this.isUploading) {
+            return;
+        }
+
+        this.isUploading = true;
+        this.showUploadProgress();
+
+        try {
+            const formData = new FormData();
             
-            return `
-                <div class="file-item" data-index="${index}">
-                    <div class="file-icon ${fileExt}">
-                        <i class="fas ${fileIcon}"></i>
-                    </div>
-                    <div class="file-info">
-                        <div class="file-name">${DOMUtils.escapeHtml(file.name)}</div>
-                        <div class="file-details">
-                            <span class="file-size">${FormatUtils.formatFileSize(file.size)}</span>
-                            <span class="file-type">${fileExt.toUpperCase()}</span>
+            // Add files
+            this.selectedFiles.forEach(file => {
+                formData.append('files[]', file);
+            });
+            
+            // Add job ID
+            formData.append('jobId', this.selectedJobId);
+            
+            // Determine endpoint based on upload mode
+            let endpoint;
+            if (this.uploadMode === 'ocr') {
+                endpoint = '/api/upload-ocr';
+            } else {
+                endpoint = '/api/upload-pds'; // Use existing PDS endpoint
+            }
+
+            // Show processing message
+            this.updateProgressMessage('Processing and analyzing files...');
+
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // Show final results directly (no two-step process needed)
+                this.showCompleteResults(result);
+                this.clearFiles();
+                
+                if (typeof ToastUtils !== 'undefined') {
+                    ToastUtils.showSuccess(`Successfully analyzed ${result.results.length} files!`);
+                }
+            } else {
+                throw new Error(result.error || 'Processing failed');
+            }
+
+        } catch (error) {
+            console.error('Processing error:', error);
+            if (typeof ToastUtils !== 'undefined') {
+                ToastUtils.showError(`Processing failed: ${error.message}`);
+            }
+        } finally {
+            this.isUploading = false;
+            this.hideUploadProgress();
+        }
+    },
+
+    // Start analysis process (Step 2: Assessment)
+    async startAnalysis() {
+        if (!this.currentBatch || this.isAnalyzing) {
+            return;
+        }
+
+        this.isAnalyzing = true;
+        this.showAnalysisProgress();
+
+        try {
+            const response = await fetch('/api/start-analysis', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    batch_id: this.currentBatch.batch_id,
+                    job_id: this.currentBatch.job_id
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                this.showAnalysisResults(result);
+                
+                if (typeof ToastUtils !== 'undefined') {
+                    ToastUtils.showSuccess(`Analysis complete! ${result.results.completed} candidates assessed.`);
+                }
+            } else {
+                throw new Error(result.error || 'Analysis failed');
+            }
+
+        } catch (error) {
+            console.error('Analysis error:', error);
+            if (typeof ToastUtils !== 'undefined') {
+                ToastUtils.showError(`Analysis failed: ${error.message}`);
+            }
+        } finally {
+            this.isAnalyzing = false;
+            this.hideAnalysisProgress();
+        }
+    },
+
+    // Show upload progress
+    showUploadProgress() {
+        const resultStepIds = ['resumeResultsStep', 'resultsStep'];
+        for (const id of resultStepIds) {
+            const resultsStep = document.getElementById(id);
+            if (resultsStep) {
+                resultsStep.style.display = 'block';
+                resultsStep.scrollIntoView({ behavior: 'smooth' });
+                break;
+            }
+        }
+
+        // Show loading state on button
+        const uploadBtnIds = ['resumeStartUploadBtn', 'startUploadBtn'];
+        for (const id of uploadBtnIds) {
+            const uploadBtn = document.getElementById(id);
+            if (uploadBtn) {
+                const loader = uploadBtn.querySelector('.btn-loader');
+                const span = uploadBtn.querySelector('span');
+                if (loader) loader.style.display = 'inline-block';
+                if (span) span.textContent = 'Processing...';
+                uploadBtn.disabled = true;
+                break;
+            }
+        }
+    },
+
+    // Hide upload progress
+    hideUploadProgress() {
+        const uploadBtnIds = ['resumeStartUploadBtn', 'startUploadBtn'];
+        for (const id of uploadBtnIds) {
+            const uploadBtn = document.getElementById(id);
+            if (uploadBtn) {
+                const loader = uploadBtn.querySelector('.btn-loader');
+                const span = uploadBtn.querySelector('span');
+                if (loader) loader.style.display = 'none';
+                
+                // If we have a current batch (successful upload), hide the upload button
+                if (this.currentBatch) {
+                    uploadBtn.style.display = 'none';
+                } else {
+                    // Normal state - reset to upload
+                    if (span) span.textContent = 'Upload Files';
+                    uploadBtn.disabled = this.selectedFiles.length === 0;
+                    uploadBtn.style.display = 'block';
+                }
+                break;
+            }
+        }
+    },
+
+    // Show analysis progress
+    showAnalysisProgress() {
+        const uploadBtnIds = ['resumeStartUploadBtn', 'startUploadBtn'];
+        for (const id of uploadBtnIds) {
+            const uploadBtn = document.getElementById(id);
+            if (uploadBtn) {
+                const loader = uploadBtn.querySelector('.btn-loader');
+                const span = uploadBtn.querySelector('span');
+                if (loader) loader.style.display = 'inline-block';
+                if (span) span.textContent = 'Analyzing...';
+                uploadBtn.disabled = true;
+                break;
+            }
+        }
+    },
+
+    // Hide analysis progress
+    hideAnalysisProgress() {
+        const uploadBtnIds = ['resumeStartUploadBtn', 'startUploadBtn'];
+        for (const id of uploadBtnIds) {
+            const uploadBtn = document.getElementById(id);
+            if (uploadBtn) {
+                const loader = uploadBtn.querySelector('.btn-loader');
+                const span = uploadBtn.querySelector('span');
+                if (loader) loader.style.display = 'none';
+                if (span) span.textContent = 'Start Analysis';
+                uploadBtn.disabled = false;
+                break;
+            }
+        }
+    },
+
+    // Show extraction results (Step 1 complete)
+    showExtractionResults(data) {
+        console.log('Extraction results:', data);
+        
+        // Find and show the results step
+        const resultStepIds = ['resumeResultsStep', 'resultsStep'];
+        let resultsStep = null;
+        
+        for (const id of resultStepIds) {
+            resultsStep = document.getElementById(id);
+            if (resultsStep) {
+                resultsStep.style.display = 'block';
+                break;
+            }
+        }
+        
+        if (!resultsStep) {
+            console.error('Results step element not found');
+            return;
+        }
+
+        // Update summary with extraction data
+        const processedCount = data.extraction_summary.successful_extractions;
+        const totalFiles = data.extraction_summary.total_files;
+        const failedFiles = data.extraction_summary.failed_extractions;
+
+        const processedCountEl = document.getElementById('processedCount');
+        const avgScoreEl = document.getElementById('avgScore');
+        const topCandidatesEl = document.getElementById('topCandidates');
+        
+        if (processedCountEl) processedCountEl.textContent = processedCount;
+        if (avgScoreEl) avgScoreEl.textContent = 'Pending Analysis';
+        if (topCandidatesEl) topCandidatesEl.textContent = 'Pending Analysis';
+
+        // Show extraction summary
+        this.displayExtractionSummary(data);
+
+        // Show analysis button
+        this.showAnalysisButton();
+    },
+
+    // Show analysis results (Step 2 complete)
+    showAnalysisResults(data) {
+        console.log('Analysis results:', data);
+
+        const results = data.results.assessments || [];
+        const processedCount = results.length;
+        const avgScore = results.length > 0 ? 
+            Math.round(results.reduce((sum, r) => sum + (r.score || 0), 0) / results.length) : 0;
+        const topCandidates = results.filter(r => (r.score || 0) >= 80).length;
+
+        // Update summary statistics
+        const avgScoreEl = document.getElementById('avgScore');
+        const topCandidatesEl = document.getElementById('topCandidates');
+        
+        if (avgScoreEl) avgScoreEl.textContent = avgScore + '%';
+        if (topCandidatesEl) topCandidatesEl.textContent = topCandidates;
+
+        // Display analysis results
+        this.displayAnalysisResults(data);
+
+        // Hide analysis button, show completion message
+        this.hideAnalysisButton();
+        this.showCompletionMessage();
+    },
+
+    // Display extraction summary
+    displayExtractionSummary(data) {
+        const resultsListEl = document.getElementById('rankingResults');
+        if (resultsListEl) {
+            const summary = data.extraction_summary;
+            resultsListEl.innerHTML = `
+                <div class="extraction-summary">
+                    <h4>📄 File Processing Summary</h4>
+                    <div class="summary-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Files Uploaded:</span>
+                            <span class="stat-value">${summary.total_files}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Successfully Extracted:</span>
+                            <span class="stat-value">${summary.successful_extractions}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Failed Extractions:</span>
+                            <span class="stat-value">${summary.failed_extractions}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Target Position:</span>
+                            <span class="stat-value">${data.job_info.title}</span>
                         </div>
                     </div>
-                    <div class="file-actions">
-                        <button class="remove-file" data-index="${index}" title="Remove file">
-                            <i class="fas fa-times"></i>
-                        </button>
+                    
+                    <div class="files-processed">
+                        <h5>📋 Processed Files:</h5>
+                        ${summary.files_processed.map(file => `
+                            <div class="file-item ${file.extraction_successful ? 'success' : 'error'}">
+                                <span class="file-name">${file.filename}</span>
+                                <span class="file-status">${file.extraction_successful ? '✅ Extracted' : '❌ Failed'}</span>
+                                ${file.candidate_name ? `<span class="candidate-name">(${file.candidate_name})</span>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="next-step">
+                        <p>🎯 Files have been uploaded and data extracted. Click "Start Analysis" to begin candidate assessment.</p>
                     </div>
                 </div>
             `;
-        }).join('');
-
-        this.updateUploadButtonState();
-        this.setupRemoveFileListeners();
-        
-        // Show reminder to select job if none is selected
-        if (!this.selectedJobId && this.selectedFiles.length > 0) {
-            ToastUtils.showInfo('Files ready! Please select a job position above to continue.');
         }
     },
 
-    // Setup remove file listeners
-    setupRemoveFileListeners() {
-        document.querySelectorAll('.remove-file').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const index = parseInt(btn.dataset.index);
-                this.selectedFiles.splice(index, 1);
-                this.updatePreview();
+    // Display analysis results
+    displayAnalysisResults(data) {
+        const resultsListEl = document.getElementById('rankingResults');
+        if (resultsListEl) {
+            const results = data.results.assessments || [];
+            
+            if (results.length === 0) {
+                resultsListEl.innerHTML = '<p>No analysis results available.</p>';
+                return;
+            }
+
+            // Sort by score descending
+            results.sort((a, b) => (b.score || 0) - (a.score || 0));
+
+            resultsListEl.innerHTML = `
+                <div class="analysis-results">
+                    <h4>🎯 Assessment Results</h4>
+                    <div class="results-list">
+                        ${results.map((result, index) => `
+                            <div class="result-item">
+                                <div class="rank-badge">#${index + 1}</div>
+                                <div class="candidate-info">
+                                    <h5>${result.name}</h5>
+                                    <div class="score-container">
+                                        <span class="score">${result.score}%</span>
+                                        <span class="recommendation ${result.recommendation}">${result.recommendation}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="completion-info">
+                        <p>✅ Assessment completed! ${data.results.completed} candidates assessed successfully.</p>
+                        <p>📊 Results are now available in the Applicants section.</p>
+                    </div>
+                </div>
+            `;
+        }
+    },
+
+    // Show analysis button (Step 1 complete)
+    showAnalysisButton() {
+        const uploadBtnIds = ['resumeStartUploadBtn', 'startUploadBtn'];
+        for (const id of uploadBtnIds) {
+            const uploadBtn = document.getElementById(id);
+            if (uploadBtn) {
+                // Convert upload button to analysis button
+                const span = uploadBtn.querySelector('span');
+                const loader = uploadBtn.querySelector('.btn-loader');
+                
+                if (span) span.textContent = 'Start Analysis';
+                if (loader) loader.style.display = 'none';
+                
+                uploadBtn.style.display = 'block';
+                uploadBtn.disabled = false;
+                uploadBtn.className = 'btn btn-success btn-lg'; // Change color to indicate different action
+                
+                // Remove old click listeners and add analysis listener
+                const newBtn = uploadBtn.cloneNode(true);
+                uploadBtn.parentNode.replaceChild(newBtn, uploadBtn);
+                
+                newBtn.addEventListener('click', () => this.startAnalysis());
+                
+                break;
+            }
+        }
+    },
+
+    // Hide analysis button
+    hideAnalysisButton() {
+        const uploadBtnIds = ['resumeStartUploadBtn', 'startUploadBtn'];
+        for (const id of uploadBtnIds) {
+            const uploadBtn = document.getElementById(id);
+            if (uploadBtn) {
+                uploadBtn.style.display = 'none';
+                break;
+            }
+        }
+    },
+
+    // Show completion message
+    showCompletionMessage() {
+        if (typeof ToastUtils !== 'undefined') {
+            ToastUtils.showSuccess('🎉 Upload and analysis complete! Check the Applicants section for detailed results.');
+        }
+        
+        // Add a "New Upload" button to restart the process
+        const uploadBtnIds = ['resumeStartUploadBtn', 'startUploadBtn'];
+        for (const id of uploadBtnIds) {
+            const uploadBtn = document.getElementById(id);
+            if (uploadBtn) {
+                const span = uploadBtn.querySelector('span');
+                const icon = uploadBtn.querySelector('i:not(.btn-loader i)');
+                
+                if (span) span.textContent = 'Start New Upload';
+                if (icon) {
+                    icon.className = 'fas fa-plus me-2';
+                }
+                
+                uploadBtn.style.display = 'block';
+                uploadBtn.disabled = false;
+                uploadBtn.className = 'btn btn-outline-primary btn-lg';
+                
+                // Remove old listeners and add reset listener
+                const newBtn = uploadBtn.cloneNode(true);
+                uploadBtn.parentNode.replaceChild(newBtn, uploadBtn);
+                newBtn.addEventListener('click', () => this.resetUploadState());
+                
+                break;
+            }
+        }
+    },
+
+    // Show upload results
+    showResults(data) {
+        console.log('Upload results:', data);
+        
+        // Find and show the results step
+        const resultStepIds = ['resumeResultsStep', 'resultsStep'];
+        let resultsStep = null;
+        
+        for (const id of resultStepIds) {
+            resultsStep = document.getElementById(id);
+            if (resultsStep) {
+                resultsStep.style.display = 'block';
+                break;
+            }
+        }
+        
+        if (!resultsStep) {
+            console.error('Results step element not found');
+            return;
+        }
+        
+        const results = data.results || [];
+        const processedCount = results.length;
+        const avgScore = results.length > 0 ? 
+            Math.round(results.reduce((sum, r) => sum + (r.matchScore || 0), 0) / results.length) : 0;
+        const topCandidates = results.filter(r => (r.matchScore || 0) >= 80).length;
+        
+        // Update summary statistics
+        const processedCountEl = document.getElementById('processedCount');
+        const avgScoreEl = document.getElementById('avgScore');
+        const topCandidatesEl = document.getElementById('topCandidates');
+        
+        if (processedCountEl) processedCountEl.textContent = processedCount;
+        if (avgScoreEl) avgScoreEl.textContent = avgScore + '%';
+        if (topCandidatesEl) topCandidatesEl.textContent = topCandidates;
+        
+        // Display results list
+        const resultsListEl = document.getElementById('rankingResults');
+        if (resultsListEl) {
+            if (results.length === 0) {
+                resultsListEl.innerHTML = `
+                    <div class="no-results">
+                        <i class="fas fa-inbox"></i>
+                        <h4>No candidates processed</h4>
+                        <p>No valid resumes were found in the uploaded files.</p>
+                    </div>
+                `;
+            } else {
+                resultsListEl.innerHTML = results.map((candidate, index) => `
+                    <div class="candidate-result-card">
+                        <div class="candidate-rank">#${index + 1}</div>
+                        <div class="candidate-info">
+                            <div class="candidate-header">
+                                <h5 class="candidate-name">${this.escapeHtml(candidate.name || candidate.filename)}</h5>
+                                <div class="candidate-score">
+                                    <span class="score-value">${candidate.matchScore || 0}%</span>
+                                    <div class="score-bar">
+                                        <div class="score-fill" style="width: ${candidate.matchScore || 0}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="candidate-details">
+                                <div class="candidate-email">
+                                    <i class="fas fa-envelope"></i>
+                                    ${this.escapeHtml(candidate.email || 'No email provided')}
+                                </div>
+                                <div class="candidate-file">
+                                    <i class="fas fa-file"></i>
+                                    ${this.escapeHtml(candidate.filename)}
+                                </div>
+                                <div class="candidate-status">
+                                    <span class="status-badge status-${candidate.status || 'processed'}">${candidate.status || 'Processed'}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="candidate-actions">
+                            <button class="btn btn-sm btn-outline-primary" onclick="viewCandidate('${candidate.filename}')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        // Show success message
+        if (typeof ToastUtils !== 'undefined') {
+            ToastUtils.showSuccess(`Successfully processed ${processedCount} files!`);
+        }
+        
+        // Hide upload progress
+        this.hideUploadProgress();
+        
+        // Reset upload state
+        this.isUploading = false;
+        this.selectedFiles = [];
+        this.updateFilePreview();
+        this.updateUploadButton();
+    },
+
+    // Load LSPU job postings for target position selection
+    async loadJobPostings() {
+        console.log('🔄 Loading job postings...');
+        
+        try {
+            const response = await fetch('/api/job-postings');
+            const data = await response.json();
+            
+            console.log('📡 API Response:', data);
+            
+            // Handle different response formats
+            let jobPostings;
+            if (data.success && Array.isArray(data.postings)) {
+                jobPostings = data.postings;
+            } else if (Array.isArray(data)) {
+                jobPostings = data;
+            } else {
+                console.error('Unexpected API response format:', data);
+                jobPostings = [];
+            }
+            
+            console.log('📋 Job postings to render:', jobPostings.length, jobPostings);
+            
+            // Store job postings for compatibility
+            this.jobs = jobPostings;
+            
+            if (jobPostings && jobPostings.length > 0) {
+                this.renderJobPostings(jobPostings);
+            } else {
+                console.error('Failed to load job postings or no job postings available');
+                this.showNoJobsMessage();
+            }
+        } catch (error) {
+            console.error('Error loading job postings:', error);
+            this.showNoJobsMessage();
+        }
+    },
+
+    // Render LSPU job postings for selection
+    renderJobPostings(jobPostings) {
+        console.log('🎨 Rendering job postings...');
+        
+        const positionGrid = document.getElementById('positionTypesUpload');
+        if (!positionGrid) {
+            console.error('❌ Position types grid not found! Expected element with ID: positionTypesUpload');
+            return;
+        }
+        
+        console.log('✅ Found position grid element:', positionGrid);
+
+        if (jobPostings.length === 0) {
+            console.log('⚠️ No job postings to render');
+            this.showNoJobsMessage();
+            return;
+        }
+
+        console.log(`📝 Rendering ${jobPostings.length} job postings...`);
+        
+        positionGrid.innerHTML = jobPostings.map(job => `
+            <div class="position-type-card" data-job-id="${job.id}">
+                <div class="position-type-header">
+                    <h4>${this.escapeHtml(job.title || job.position_title || 'Untitled Position')}</h4>
+                    <div class="job-posting-badges">
+                        <span class="badge bg-primary">${this.escapeHtml(job.position_type || 'University Position')}</span>
+                        <span class="badge bg-info">${this.escapeHtml(job.campus || 'Main Campus')}</span>
+                        ${job.status ? `<span class="badge bg-success">${this.escapeHtml(job.status)}</span>` : ''}
+                    </div>
+                </div>
+                <div class="position-type-body">
+                    <div class="job-posting-details">
+                        <p class="job-reference"><strong>Ref:</strong> ${this.escapeHtml(job.reference_number || 'N/A')}</p>
+                        ${job.quantity ? `<p class="job-quantity"><strong>Positions:</strong> ${job.quantity}</p>` : ''}
+                        ${job.deadline ? `<p class="job-deadline"><strong>Deadline:</strong> ${new Date(job.deadline).toLocaleDateString()}</p>` : ''}
+                    </div>
+                </div>
+                <div class="position-type-footer">
+                    <button class="btn btn-primary select-position" data-job-id="${job.id}" data-job-title="${this.escapeHtml(job.title || job.position_title || 'Untitled Position')}">
+                        <i class="fas fa-check-circle me-2"></i>Select Position
+                    </button>
+                </div>
+            </div>
+        `).join('');
+
+        // Add click event listeners to the selection buttons
+        this.attachPositionSelectionListeners();
+    },
+
+    showNoJobsMessage() {
+        const positionGrid = document.getElementById('positionTypesUpload');
+        if (!positionGrid) return;
+
+        positionGrid.innerHTML = `
+            <div class="no-positions-message">
+                <div class="no-positions-icon">
+                    <i class="fas fa-university"></i>
+                </div>
+                <h4>No Job Postings Available</h4>
+                <p>Please go to the "Job Postings" section and create university job postings first.</p>
+                <a href="#job-postings" class="btn btn-primary" onclick="NavigationModule.showSection('job-postings')">
+                    <i class="fas fa-plus me-2"></i>Create Job Postings
+                </a>
+            </div>
+        `;
+    },
+
+    // Attach event listeners to position selection buttons
+    attachPositionSelectionListeners() {
+        const positionGrid = document.getElementById('positionTypesUpload');
+        if (!positionGrid) return;
+
+        const selectButtons = positionGrid.querySelectorAll('.select-position');
+        selectButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const jobId = button.getAttribute('data-job-id');
+                const jobTitle = button.getAttribute('data-job-title');
+                this.selectJob(jobId, jobTitle);
             });
         });
     },
 
-    // Get file icon class
-    getFileIcon(extension) {
-        switch (extension) {
-            case 'pdf': return 'fa-file-pdf';
-            case 'docx':
-            case 'doc': return 'fa-file-word';
-            case 'txt': return 'fa-file-alt';
-            default: return 'fa-file';
-        }
+    // Escape HTML to prevent XSS
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     },
 
-    // Start upload process
-    async startUpload() {
-        if (this.selectedFiles.length === 0) {
-            ToastUtils.showWarning('Please select files to upload');
-            return;
-        }
-
-        if (!this.selectedJobId) {
-            ToastUtils.showWarning('Please select a job position first');
-            // Scroll to job selection area if it exists
-            const jobCategoriesSection = document.getElementById('jobCategoriesUpload');
-            if (jobCategoriesSection) {
-                jobCategoriesSection.scrollIntoView({ behavior: 'smooth' });
-            }
-            return;
-        }
-
-        // Show enhanced loading with progress
-        const loadingId = window.LoadingUtils.show({
-            type: 'progress',
-            message: 'Uploading Resumes',
-            subtext: `Processing ${this.selectedFiles.length} file${this.selectedFiles.length > 1 ? 's' : ''}...`
-        });
-
-        // Also show button loading state
-        window.LoadingUtils.showButtonLoading(this.startUploadBtn, 'Uploading...');
-
-        try {
-            // Update loading message for AI processing
-            setTimeout(() => {
-                window.LoadingUtils.updateMessage(
-                    'AI Processing', 
-                    'Analyzing resumes with artificial intelligence...'
-                );
-            }, 2000);
-
-            const result = await APIService.uploadFiles([...this.selectedFiles], this.selectedJobId);
-
-            if (result.success) {
-                // Update to completion message
-                window.LoadingUtils.updateMessage(
-                    'Processing Complete', 
-                    'Ranking candidates based on job requirements...'
-                );
-
-                // Show success animation briefly
-                setTimeout(() => {
-                    window.LoadingUtils.hide();
-                    
-                    let message = `Successfully processed ${result.results.length} resumes`;
-                    if (result.warnings && result.warnings.length > 0) {
-                        message += ` (${result.warnings.length} files had issues)`;
-                    }
-                    
-                    ToastUtils.showSuccess(message, { duration: 6000 });
-                    this.displayRankingResults(result.results);
-                    this.updateResultsSummary(result.results);
-                    
-                    this.clearSelectedFiles();
-                    this.fileInput.value = '';
-                }, 1000);
-            } else {
-                throw new Error(result.error || 'Upload failed');
-            }
-
-        } catch (error) {
-            console.error('Upload error:', error);
-            window.LoadingUtils.hide();
-            ToastUtils.showError(`Upload failed: ${error.message}`, { duration: 8000 });
-        } finally {
-            window.LoadingUtils.hideButtonLoading(this.startUploadBtn);
-        }
-    },
-
-    // Show/hide loading state
-    showLoadingState(loading) {
-        if (!this.startUploadBtn) return;
-        
-        const btnText = this.startUploadBtn.querySelector('span');
-        const btnLoader = this.startUploadBtn.querySelector('.btn-loader');
-        
-        this.startUploadBtn.disabled = loading;
-        if (btnText) btnText.style.display = loading ? 'none' : 'inline';
-        if (btnLoader) btnLoader.style.display = loading ? 'inline-block' : 'none';
-    },
-
-    // Select job for upload
-    selectJob(jobId) {
-        const job = window.jobsData && window.jobsData[jobId];
-        if (!job) {
-            ToastUtils.showError('Job not found');
-            return;
-        }
-        
+    // Select a job posting
+    async selectJob(jobId, jobTitle = null) {
         this.selectedJobId = jobId;
-        this.updateSelectedJobUI(job);
-        ToastUtils.showSuccess(`Selected job: ${job.title}`);
-    },
-
-    // Update selected job UI
-    updateSelectedJobUI(job) {
-        const detailsSection = document.getElementById('selectedJobDetails');
-        if (detailsSection) {
-            detailsSection.style.display = 'block';
-            detailsSection.querySelector('.job-title').innerHTML = `<strong><i class="fas fa-briefcase me-2"></i>Position:</strong> ${DOMUtils.escapeHtml(job.title)}`;
-            detailsSection.querySelector('.job-description').innerHTML = `<strong><i class="fas fa-info-circle me-2"></i>Description:</strong> ${DOMUtils.escapeHtml(job.description)}`;
-            detailsSection.querySelector('.required-skills').innerHTML = `<strong><i class="fas fa-tools me-2"></i>Required Skills:</strong> ${DOMUtils.escapeHtml(job.requirements)}`;
-        }
         
-        // Update card selection states
-        document.querySelectorAll('.job-category-card').forEach(card => {
-            card.classList.remove('selected');
-        });
-        
-        const selectedCard = document.querySelector(`[data-job-id="${this.selectedJobId}"]`);
-        if (selectedCard) {
-            selectedCard.classList.add('selected');
-        }
-        
-        // Show upload zone
-        const uploadInstructions = document.getElementById('uploadInstructions');
-        const uploadZone = document.getElementById('uploadZone');
-        if (uploadInstructions) uploadInstructions.style.display = 'none';
-        if (uploadZone) uploadZone.style.display = 'block';
-    },
-
-    // Clear selected files
-    clearSelectedFiles() {
-        this.selectedFiles = [];
-        if (this.fileInput) this.fileInput.value = '';
-        if (this.uploadPreview) this.uploadPreview.innerHTML = '';
-        this.updateUploadButtonState();
-    },
-
-    // Update upload button state
-    updateUploadButtonState() {
-        const uploadActions = document.getElementById('uploadActions');
-        
-        if (this.selectedFiles.length > 0 && this.selectedJobId) {
-            if (this.startUploadBtn) this.startUploadBtn.disabled = false;
-            if (uploadActions) uploadActions.style.display = 'block';
-            this.updateFileStats();
-        } else {
-            if (this.startUploadBtn) this.startUploadBtn.disabled = true;
-            if (this.selectedFiles.length === 0 && uploadActions) {
-                uploadActions.style.display = 'none';
+        // If jobTitle not provided, fetch it from the loaded job postings
+        if (!jobTitle && this.jobs && this.jobs.length > 0) {
+            const jobPosting = this.jobs.find(j => j.id == jobId);
+            jobTitle = jobPosting ? (jobPosting.title || jobPosting.position_title) : `Job Posting ${jobId}`;
+        } else if (!jobTitle) {
+            // Fallback: fetch job posting data from API
+            try {
+                const response = await fetch(`/api/job-postings/${jobId}`);
+                const data = await response.json();
+                if (data.success && data.job_posting) {
+                    jobTitle = data.job_posting.position_title || `Job Posting ${jobId}`;
+                } else {
+                    jobTitle = `Job Posting ${jobId}`;
+                }
+            } catch (error) {
+                console.error('Error fetching job posting:', error);
+                jobTitle = `Job Posting ${jobId}`;
             }
         }
-    },
-
-    // Update file statistics
-    updateFileStats() {
-        const fileCount = document.getElementById('fileCount');
-        const totalSize = document.getElementById('totalSize');
         
-        if (fileCount) {
-            fileCount.textContent = `${this.selectedFiles.length} file${this.selectedFiles.length !== 1 ? 's' : ''} selected`;
+        // Update UI to show selected job
+        const selectedJobTitle = document.getElementById('selectedJobTitle');
+        if (selectedJobTitle) {
+            selectedJobTitle.textContent = jobTitle;
         }
-        
-        if (totalSize) {
-            const total = this.selectedFiles.reduce((sum, file) => sum + file.size, 0);
-            totalSize.textContent = `${(total / (1024 * 1024)).toFixed(2)} MB`;
-        }
-    },
 
-    // Display ranking results
-    displayRankingResults(results) {
-        const resultsCard = document.getElementById('resultsCard');
-        const resultsList = document.getElementById('rankingResults');
-        
-        if (!resultsCard || !resultsList) return;
-        
-        // Sort results by match score
-        results.sort((a, b) => b.matchScore - a.matchScore);
-        
-        resultsList.innerHTML = results.map(result => `
-            <div class="ranking-result-card ${DOMUtils.getScoreColorClass(result.matchScore)}">
-                <div class="result-header">
-                    <div class="result-title">
-                        <i class="fas fa-file-alt me-2"></i>
-                        <h4>${DOMUtils.escapeHtml(result.filename)}</h4>
-                    </div>
-                    <div class="match-score">
-                        <div class="score-circle">
-                            ${result.matchScore}%
-                        </div>
-                    </div>
-                </div>
-                <div class="result-body">
-                    <div class="candidate-info">
-                        ${result.name ? `<p><strong>Name:</strong> ${DOMUtils.escapeHtml(result.name)}</p>` : ''}
-                        ${result.email ? `<p><strong>Email:</strong> ${DOMUtils.escapeHtml(result.email)}</p>` : ''}
-                        ${result.phone ? `<p><strong>Phone:</strong> ${DOMUtils.escapeHtml(result.phone)}</p>` : ''}
-                        ${result.predictedCategory ? `
-                            <p><strong>Predicted Category:</strong> 
-                                <span class="category-prediction">
-                                    ${DOMUtils.escapeHtml(result.predictedCategory.category)} 
-                                    <span class="confidence-score">(${result.predictedCategory.confidence}% confidence)</span>
-                                </span>
-                            </p>
-                        ` : ''}
-                    </div>
-                    <div class="skills-section">
-                        <h5>Matched Skills</h5>
-                        <div class="skills-list">
-                            ${result.matchedSkills.map(skill => 
-                                `<span class="skill-tag matched">${DOMUtils.escapeHtml(skill)}</span>`
-                            ).join('')}
-                        </div>
-                    </div>
-                    <div class="missing-skills-section">
-                        <h5>Missing Skills</h5>
-                        <div class="skills-list">
-                            ${result.missingSkills.map(skill => 
-                                `<span class="skill-tag missing">${DOMUtils.escapeHtml(skill)}</span>`
-                            ).join('')}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `).join('');
-        
-        resultsCard.style.display = 'block';
-    },
-
-    // Update results summary (placeholder)
-    updateResultsSummary(results) {
-        // Implementation would go here - keeping existing functionality  
-        if (typeof updateResultsSummary === 'function') {
-            updateResultsSummary(results);
-        }
-    },
-
-    // Load job categories for upload selection
-    async loadJobCategories() {
+        // Fetch detailed job posting information
+        let jobPostingDetails = null;
         try {
-            const response = await fetch('/api/jobs');
+            const response = await fetch(`/api/job-postings/${jobId}`);
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    jobPostingDetails = data.job_posting;
+                }
+            }
+        } catch (error) {
+            console.warn('Could not fetch job posting details:', error);
+        }
+
+        // Show selected job details with requirements
+        const selectedJobDetails = document.getElementById('selectedPositionInfo');
+        if (selectedJobDetails) {
+            selectedJobDetails.style.display = 'block';
+            
+            // Update the job title in the preview
+            const jobTitleElement = selectedJobDetails.querySelector('.position-title');
+            if (jobTitleElement) {
+                jobTitleElement.textContent = jobTitle;
+            }
+
+            // Extract job requirements from job posting details
+            const jobRequirements = jobPostingDetails ? {
+                education: jobPostingDetails.education_requirements || '',
+                experience: jobPostingDetails.experience_requirements || '',
+                skills: jobPostingDetails.skills_requirements || '',
+                qualifications: jobPostingDetails.preferred_qualifications || '',
+                position_category: jobPostingDetails.position_category || ''
+            } : {};
+
+            // Update requirements display if container exists
+            const requirementsContainer = selectedJobDetails.querySelector('.job-requirements-preview');
+            if (requirementsContainer) {
+                this.displayJobRequirements(requirementsContainer, jobRequirements);
+            }
+        }
+
+        // Update job selection display for current mode
+        this.updateJobSelectionDisplay();
+        
+        // Update upload button state
+        this.updateUploadButton();
+    },
+
+    // Display job requirements in the upload section
+    displayJobRequirements(container, requirements) {
+        if (!requirements) {
+            container.innerHTML = `
+                <div class="requirements-warning">
+                    <i class="fas fa-exclamation-triangle text-warning"></i>
+                    <span>No detailed requirements set for this position. Assessment may be limited.</span>
+                </div>
+            `;
+            return;
+        }
+
+        const reqHtml = `
+            <div class="requirements-preview">
+                <h6><i class="fas fa-clipboard-check"></i> Position Requirements</h6>
+                
+                ${requirements.minimum_education ? `
+                    <div class="requirement-item">
+                        <i class="fas fa-graduation-cap text-primary"></i>
+                        <strong>Education:</strong> ${requirements.minimum_education}
+                    </div>
+                ` : ''}
+                
+                ${requirements.required_experience ? `
+                    <div class="requirement-item">
+                        <i class="fas fa-briefcase text-success"></i>
+                        <strong>Experience:</strong> ${requirements.required_experience} years
+                    </div>
+                ` : ''}
+                
+                ${requirements.subject_area ? `
+                    <div class="requirement-item">
+                        <i class="fas fa-book text-info"></i>
+                        <strong>Field:</strong> ${requirements.subject_area}
+                    </div>
+                ` : ''}
+                
+                ${requirements.required_skills && requirements.required_skills.length > 0 ? `
+                    <div class="requirement-item skills-preview">
+                        <i class="fas fa-cogs text-secondary"></i>
+                        <strong>Required Skills:</strong>
+                        <div class="skills-tags-mini">
+                            ${requirements.required_skills.map(skill => `
+                                <span class="skill-tag mini">${skill}</span>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+                
+                ${requirements.required_certifications && requirements.required_certifications.length > 0 ? `
+                    <div class="requirement-item certifications-preview">
+                        <i class="fas fa-certificate text-warning"></i>
+                        <strong>Certifications:</strong>
+                        <div class="certifications-tags-mini">
+                            ${requirements.required_certifications.map(cert => `
+                                <span class="certification-tag mini">${cert}</span>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+
+        container.innerHTML = reqHtml;
+    },
+
+    updateJobSelectionDisplay() {
+        if (!this.selectedJobId) return;
+        
+        // Get job title from stored jobs data
+        let jobTitle = 'Selected Job';
+        if (this.jobs && this.jobs.length > 0) {
+            const job = this.jobs.find(j => j.id == this.selectedJobId);
+            jobTitle = job ? job.title : `Job ${this.selectedJobId}`;
+        }
+        
+        // Show upload zones based on current mode
+        const regularZone = document.getElementById('regularUploadZone');
+        const ocrZone = document.getElementById('ocrUploadZone');
+        
+        if (this.uploadMode === 'ocr' && ocrZone) {
+            ocrZone.style.display = 'block';
+        } else if (regularZone) {
+            regularZone.style.display = 'block';
+        }
+        
+        // Hide upload instructions for both modes
+        const regularInstructions = document.getElementById('uploadInstructions');
+        const ocrInstructions = document.getElementById('ocrUploadInstructions');
+        
+        if (regularInstructions) {
+            regularInstructions.style.display = 'none';
+        }
+        if (ocrInstructions) {
+            ocrInstructions.style.display = 'none';
+        } else {
+            console.log('OCR upload instructions element not found - this is expected');
+        }
+        
+        // Show selected job info - use the actual element ID from HTML
+        const selectedPositionInfo = document.getElementById('selectedPositionInfo');
+        
+        if (selectedPositionInfo) {
+            selectedPositionInfo.style.display = 'block';
+            // Update the position title
+            const positionTitle = selectedPositionInfo.querySelector('.position-title');
+            if (positionTitle) {
+                positionTitle.textContent = jobTitle;
+            }
+        }
+        
+        console.log('Job selection display updated:', {
+            jobId: this.selectedJobId,
+            jobTitle: jobTitle,
+            uploadMode: this.uploadMode,
+            regularZoneVisible: regularZone ? regularZone.style.display : 'not found',
+            ocrZoneVisible: ocrZone ? ocrZone.style.display : 'not found'
+        });
+    },
+
+    // Load jobs for select dropdown
+    async loadJobsForSelect(selectElement) {
+        try {
+            const response = await fetch('/api/job-postings');
             const data = await response.json();
             
-            if (!data.success) {
-                throw new Error(data.error || 'Failed to load jobs');
+            if (data.success && selectElement) {
+                selectElement.innerHTML = '<option value="">Select a job...</option>' +
+                    data.postings.map(job => 
+                        `<option value="${job.id}">${this.escapeHtml(job.position_title)}</option>`
+                    ).join('');
             }
-            
-            const jobs = data.jobs || [];
-            const categoriesList = document.getElementById('jobCategoriesUpload');
-            
-            if (!categoriesList) {
-                console.error('Element jobCategoriesUpload not found!');
-                return;
-            }
-            
-            if (jobs.length === 0) {
-                categoriesList.innerHTML = `
-                    <div class="no-jobs-message">
-                        <div class="no-jobs-icon">
-                            <i class="fas fa-briefcase"></i>
-                        </div>
-                        <h4>No Jobs Available</h4>
-                        <p>Please go to the "Job Requirements" section and create some job positions first.</p>
-                        <a href="#jobs" class="btn btn-primary" onclick="window.showSection('jobs')">
-                            <i class="fas fa-plus me-2"></i>Create Jobs
-                        </a>
-                    </div>
-                `;
-                return;
-            }
-            
-            categoriesList.innerHTML = jobs.map(job => `
-                <div class="job-category-card" data-job-id="${job.id}" onclick="selectJobForUpload(${job.id})">
-                    <div class="job-category-header">
-                        <h4>${DOMUtils.escapeHtml(job.title)}</h4>
-                        <span class="badge">${DOMUtils.escapeHtml(job.category)}</span>
-                    </div>
-                    <div class="job-category-body">
-                        <p class="job-category-description">${DOMUtils.escapeHtml(job.description.substring(0, 150))}${job.description.length > 150 ? '...' : ''}</p>
-                        <div class="job-category-skills">
-                            ${job.requirements.split(',').map(skill => 
-                                `<span class="skill-tag">${DOMUtils.escapeHtml(skill.trim())}</span>`
-                            ).join('')}
-                        </div>
-                    </div>
-                    <div class="job-category-footer">
-                        <button class="btn btn-primary select-job" onclick="event.stopPropagation(); selectJobForUpload(${job.id})">
-                            <i class="fas fa-check me-2"></i>Select Job
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-            
-            // Store jobs data for later use
-            window.jobsData = jobs.reduce((acc, job) => {
-                acc[job.id] = job;
-                return acc;
-            }, {});
-            
         } catch (error) {
-            console.error('Error loading jobs for upload:', error);
-            const categoriesList = document.getElementById('jobCategoriesUpload');
-            if (categoriesList) {
-                categoriesList.innerHTML = `
-                    <div class="error-message">
-                        <div class="error-icon">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
-                        <h4>Failed to Load Jobs</h4>
-                        <p>Error: ${error.message}</p>
-                        <button class="btn btn-outline-primary" onclick="UploadModule.loadJobCategories()">
-                            <i class="fas fa-redo me-2"></i>Retry
-                        </button>
-                    </div>
-                `;
-            }
-            ToastUtils.showError('Failed to load jobs: ' + error.message);
+            console.error('Error loading jobs for select:', error);
         }
     },
+
+    // Update progress message during processing
+    updateProgressMessage(message) {
+        const uploadBtnIds = ['resumeStartUploadBtn', 'startUploadBtn'];
+        for (const id of uploadBtnIds) {
+            const uploadBtn = document.getElementById(id);
+            if (uploadBtn) {
+                const span = uploadBtn.querySelector('span');
+                if (span) span.textContent = message;
+                break;
+            }
+        }
+    },
+
+    // Show final results (combined upload + analysis complete)
+    showFinalResults(data) {
+        console.log('Final analysis results:', data);
+
+        // Find and show the results step
+        const resultStepIds = ['resumeResultsStep', 'resultsStep'];
+        let resultsStep = null;
+        
+        for (const id of resultStepIds) {
+            resultsStep = document.getElementById(id);
+            if (resultsStep) {
+                resultsStep.style.display = 'block';
+                resultsStep.scrollIntoView({ behavior: 'smooth' });
+                break;
+            }
+        }
+
+        // Update summary statistics
+        const processedCount = data.total_candidates || 0;
+        const avgScore = data.average_score || 0;
+        const topCandidates = data.high_scorers || 0;
+
+        const processedCountEl = document.getElementById('processedCount');
+        const avgScoreEl = document.getElementById('avgScore');
+        const topCandidatesEl = document.getElementById('topCandidates');
+        
+        if (processedCountEl) processedCountEl.textContent = processedCount;
+        if (avgScoreEl) avgScoreEl.textContent = Math.round(avgScore) + '%';
+        if (topCandidatesEl) topCandidatesEl.textContent = topCandidates;
+
+        // Display final results
+        if (data.results && data.results.assessments) {
+            this.displayAnalysisResults(data);
+        }
+
+        // Hide upload button and show completion
+        this.hideUploadButton();
+        this.showCompletionMessage();
+    },
+
+    // Hide upload button after completion
+    hideUploadButton() {
+        const uploadBtnIds = ['resumeStartUploadBtn', 'startUploadBtn'];
+        for (const id of uploadBtnIds) {
+            const uploadBtn = document.getElementById(id);
+            if (uploadBtn) {
+                uploadBtn.style.display = 'none';
+                break;
+            }
+        }
+    },
+
+    // Show completion message
+    showCompletionMessage() {
+        // Could add a completion banner or message here if needed
+        console.log('Analysis completed successfully');
+    },
+
+    // Show complete results (single-step processing)
+    showCompleteResults(data) {
+        console.log('Complete processing results:', data);
+
+        // Find and show the results step
+        const resultStepIds = ['resumeResultsStep', 'resultsStep'];
+        let resultsStep = null;
+        
+        for (const id of resultStepIds) {
+            resultsStep = document.getElementById(id);
+            if (resultsStep) {
+                resultsStep.style.display = 'block';
+                resultsStep.scrollIntoView({ behavior: 'smooth' });
+                break;
+            }
+        }
+
+        // Update summary statistics
+        const results = data.results || [];
+        const processedCount = results.length;
+        const scores = results.map(r => r.total_score || r.matchScore || 0);
+        const avgScore = scores.length > 0 ? 
+            Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length) : 0;
+        const topCandidates = results.filter(r => (r.total_score || r.matchScore || 0) >= 70).length;
+
+        const processedCountEl = document.getElementById('processedCount');
+        const avgScoreEl = document.getElementById('avgScore');
+        const topCandidatesEl = document.getElementById('topCandidates');
+        
+        if (processedCountEl) processedCountEl.textContent = processedCount;
+        if (avgScoreEl) avgScoreEl.textContent = avgScore + '%';
+        if (topCandidatesEl) topCandidatesEl.textContent = topCandidates;
+
+        // Display results using existing method
+        this.displayAnalysisResults(data);
+
+        // Hide upload button and show completion
+        this.hideUploadButton();
+        this.showCompletionMessage();
+    }
 };
 
 // Make globally available
 window.UploadModule = UploadModule;
-window.selectedJobId = null; // For backward compatibility
-window.selectedFiles = []; // For backward compatibility
 
-// Backward compatibility functions
-window.selectJobForUpload = function(jobId) {
-    UploadModule.selectJob(jobId);
-    // Update global variables for compatibility
-    window.selectedJobId = UploadModule.selectedJobId;
-};
-
-window.setupResumeUpload = UploadModule.init.bind(UploadModule);
-
-// Add missing global functions for backward compatibility
-window.loadJobCategoriesForUpload = function() {
-    UploadModule.loadJobCategories();
-};
-
-// Global function to trigger file browser
+// Global functions for HTML compatibility
 window.triggerFileUpload = function() {
-    console.log('Global triggerFileUpload called');
-    const fileInput = document.getElementById('resumeUpload');
-    if (fileInput) {
-        fileInput.click();
-    } else {
-        console.error('File input not found!');
-    }
+    UploadModule.triggerFileUpload();
 };
 
-// Global function for "click to browse" links
-window.openFileBrowser = window.triggerFileUpload;
+window.clearJobSelection = function() {
+    UploadModule.selectedJobId = null;
+    
+    // Hide selected job/position details (support both old and new IDs)
+    const selectedJobDetails = document.getElementById('selectedPositionDetails') || document.getElementById('selectedJobDetails');
+    if (selectedJobDetails) {
+        selectedJobDetails.style.display = 'none';
+    }
+    
+    // Hide upload zone and show instructions
+    const uploadZone = document.getElementById('uploadZone');
+    const uploadInstructions = document.getElementById('uploadInstructions');
+    
+    if (uploadZone) uploadZone.style.display = 'none';
+    if (uploadInstructions) uploadInstructions.style.display = 'block';
+    
+    // Clear any selected files
+    UploadModule.clearFiles();
+};
+
+// Clear position selection (new terminology)
+window.clearPositionSelection = function() {
+    return window.clearJobSelection();
+};
+
+// Auto-initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    UploadModule.init();
+});
+
+// Global function for switching upload modes (called from HTML)
+function switchUploadMode(mode) {
+    if (typeof UploadModule !== 'undefined' && UploadModule.switchUploadMode) {
+        UploadModule.switchUploadMode(mode);
+    }
+}
+
+// Global function for triggering file upload (called from HTML)
+function triggerFileUpload(mode) {
+    if (typeof UploadModule !== 'undefined' && UploadModule.triggerFileUpload) {
+        UploadModule.triggerFileUpload(mode);
+    }
+}
+
+// Make UploadModule available globally
+window.UploadModule = UploadModule;
+
+// Export for ES6 modules
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = UploadModule;
+}

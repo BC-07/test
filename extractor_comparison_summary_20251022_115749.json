@@ -1,0 +1,58 @@
+{
+  "comparison_timestamp": "20251022_115749",
+  "test_file": "Sample PDS Lenar.xlsx",
+  "extractors_tested": [
+    "PersonalDataSheetProcessor",
+    "PDSExtractor",
+    "ImprovedPDSExtractor"
+  ],
+  "summary": {
+    "basic_processor": {
+      "sections": [
+        "educational_background",
+        "work_experience",
+        "learning_development",
+        "civil_service_eligibility",
+        "voluntary_work"
+      ],
+      "total_sections": 5,
+      "educational_entries": 7,
+      "work_entries": 9,
+      "training_entries": 0
+    },
+    "pds_extractor": {
+      "sections": [
+        "personal_info",
+        "eligibility",
+        "work_experience",
+        "voluntary_work",
+        "training",
+        "other_info",
+        "extraction_metadata"
+      ],
+      "total_sections": 7,
+      "work_entries": 5,
+      "training_entries": 6,
+      "eligibility_entries": 11,
+      "voluntary_entries": 6
+    },
+    "improved_extractor": {
+      "sections": [
+        "personal_info",
+        "family_background",
+        "educational_background",
+        "civil_service_eligibility",
+        "work_experience",
+        "voluntary_work",
+        "learning_development",
+        "other_information",
+        "extraction_metadata"
+      ],
+      "total_sections": 9,
+      "educational_entries": 6,
+      "work_entries": 4,
+      "training_entries": 4,
+      "voluntary_entries": 4
+    }
+  }
+}

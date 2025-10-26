@@ -1,0 +1,367 @@
+{
+  "personal_info": {
+    "surname": "YOLOLA",
+    "first_name": "LENAR ANDREI",
+    "middle_name": "PRIMNE",
+    "name_extension": "N/a",
+    "date_of_birth": "DECEMBER 10 2003",
+    "place_of_birth": "SAN JUAN BATANGAS",
+    "sex": null,
+    "civil_status": null,
+    "height": "1.65",
+    "weight": "80",
+    "blood_type": "AB+",
+    "gsis_id": "12345",
+    "pagibig_id": "54321",
+    "philhealth_no": "67890",
+    "sss_no": "09876",
+    "tin_no": "12345",
+    "citizenship": "please indicate the details.",
+    "dual_citizenship_country": "Afghanistan",
+    "residential_address": {
+      "full_address": "00480, N/A, SITIO SALA, LUMINGON, Subdivision/Village, TIAONG, QUEZON, 4325"
+    },
+    "permanent_address": {
+      "full_address": "00480, N/A, SITIO SALA, LUMINGON, Subdivision/Village, TIAONG, QUEZON, 4325, 19. TELEPHONE NO., 9865562"
+    },
+    "telephone_no": "9865562",
+    "mobile_no": "09451681106",
+    "email": "yolola5279@gmail.com",
+    "full_name": "LENAR ANDREI PRIMNE YOLOLA N/a"
+  },
+  "family_background": {
+    "spouse": "n/a",
+    "father": "Yolola",
+    "mother": "SURNAME",
+    "children": "N/a",
+    "spouse_occupation": "EMPLOYER/BUSINESS NAME",
+    "spouse_employer": null
+  },
+  "educational_background": [
+    {
+      "level": "elementary",
+      "school": "Saint John Parochial School",
+      "degree_course": "Elementary education",
+      "period_from": "2010-07-02 00:00:00",
+      "period_to": "2016-07-08 00:00:00",
+      "highest_level_units": "N/a",
+      "year_graduated": "2016",
+      "honors": "Achiever"
+    },
+    {
+      "level": "elementary",
+      "school": "Saint John Parochial School",
+      "degree_course": "Elementary education",
+      "period_from": "2010-07-02 00:00:00",
+      "period_to": "2016-07-08 00:00:00",
+      "highest_level_units": "N/a",
+      "year_graduated": "2016",
+      "honors": "Achiever"
+    },
+    {
+      "level": "secondary",
+      "school": "Recto Memorial National HighSchool",
+      "degree_course": "Highschool Education",
+      "period_from": "2016-07-08 00:00:00",
+      "period_to": "2020-07-14 00:00:00",
+      "highest_level_units": "N/a",
+      "year_graduated": "2020",
+      "honors": "With Honors"
+    },
+    {
+      "level": "vocational",
+      "school": "VOCATIONAL /                                                                                                                                                                                                        TRADE COURSE",
+      "degree_course": "Recto Memorial National HighSchool",
+      "period_from": "Science Technology Engineering and Mathematics",
+      "period_to": "2020-07-12 00:00:00",
+      "highest_level_units": "2022-07-14 00:00:00",
+      "year_graduated": "N/a",
+      "honors": "2022"
+    },
+    {
+      "level": "college",
+      "school": "Laguna State Polytechnic University",
+      "degree_course": "Bachelor of Science in Computer Science",
+      "period_from": "2022-07-14 00:00:00",
+      "period_to": "2026-07-18 00:00:00",
+      "highest_level_units": "N/a",
+      "year_graduated": "2026",
+      "honors": "Cum Laude"
+    },
+    {
+      "level": "graduate",
+      "school": "GRADUATE STUDIES",
+      "degree_course": "N/a",
+      "period_from": "N/a",
+      "period_to": "N/a",
+      "highest_level_units": "N/a",
+      "year_graduated": "N/a",
+      "honors": ""
+    }
+  ],
+  "civil_service_eligibility": [
+    {
+      "eligibility": "Career Service Professional Eligibility",
+      "rating": "0.825",
+      "date_exam": "2022-09-18 00:00:00",
+      "place_exam": "CSC – National Capital Region",
+      "license_no": "",
+      "validity": ""
+    },
+    {
+      "eligibility": "Career Service Subprofessional Eligibility",
+      "rating": "0.825",
+      "date_exam": "2021-03-14 00:00:00",
+      "place_exam": "CSC Region IV-A, Lucena City",
+      "license_no": "",
+      "validity": ""
+    },
+    {
+      "eligibility": "Career Executive Service Eligibility (CES)",
+      "rating": "0.825",
+      "date_exam": "2020-11-22 00:00:00",
+      "place_exam": "CSC Main Office, Manila",
+      "license_no": "",
+      "validity": ""
+    },
+    {
+      "eligibility": "Career Service Exam for Engineers (CSEE)",
+      "rating": "0.825",
+      "date_exam": "2023-01-25 00:00:00",
+      "place_exam": "CSC Region IV-A, Lucena City",
+      "license_no": "",
+      "validity": ""
+    },
+    {
+      "eligibility": "Board Licensure Exam – Civil Engineer",
+      "rating": "0.825",
+      "date_exam": "2023-06-12 00:00:00",
+      "place_exam": "Ateneo de Manila, Quezon City",
+      "license_no": "",
+      "validity": ""
+    },
+    {
+      "eligibility": "Barangay Eligibility (RA 1080)",
+      "rating": "Pass",
+      "date_exam": "2020-07-30 00:00:00",
+      "place_exam": "Lucena City Hall",
+      "license_no": "",
+      "validity": ""
+    },
+    {
+      "eligibility": "Driver’s License (Non-Professional)",
+      "rating": "N/A",
+      "date_exam": "2023-08-15 00:00:00",
+      "place_exam": "LTO Quezon Ave., Quezon City",
+      "license_no": "",
+      "validity": ""
+    },
+    {
+      "eligibility": "28.",
+      "rating": "INCLUSIVE DATES (mm/dd/yyyy)",
+      "date_exam": "POSITION TITLE                                                                                                                            (Write in full/Do not abbreviate)",
+      "place_exam": "DEPARTMENT / AGENCY / OFFICE / COMPANY                                                                                             (Write in full/Do not abbreviate)",
+      "license_no": "",
+      "validity": ""
+    },
+    {
+      "eligibility": "From",
+      "rating": "To",
+      "date_exam": "",
+      "place_exam": "",
+      "license_no": "",
+      "validity": ""
+    },
+    {
+      "eligibility": "2022-05-01 00:00:00",
+      "rating": "09/15/2025",
+      "date_exam": "Data Analyst",
+      "place_exam": "Civil Service Commission Region IV-A",
+      "license_no": "",
+      "validity": ""
+    },
+    {
+      "eligibility": "2018-01-06 00:00:00",
+      "rating": "12/31/2021",
+      "date_exam": "Administrative Assistant",
+      "place_exam": "Department of Education Tiaong District",
+      "license_no": "",
+      "validity": ""
+    },
+    {
+      "eligibility": "2016-10-07 00:00:00",
+      "rating": "05/30/2018",
+      "date_exam": "Customer Service Representative",
+      "place_exam": "XYZ Solutions Inc.",
+      "license_no": "",
+      "validity": ""
+    },
+    {
+      "eligibility": "2015-01-02 00:00:00",
+      "rating": "12/31/2015",
+      "date_exam": "HR Assistant Intern",
+      "place_exam": "Ayala Land Inc.",
+      "license_no": "",
+      "validity": ""
+    }
+  ],
+  "work_experience": [
+    {
+      "date_from": "2022-05-01 00:00:00",
+      "date_to": "09/15/2025",
+      "position": "Data Analyst",
+      "company": "Civil Service Commission Region IV-A",
+      "salary": "45000",
+      "grade": "SG-24/Step 1",
+      "status": "",
+      "govt_service": ""
+    },
+    {
+      "date_from": "2018-01-06 00:00:00",
+      "date_to": "12/31/2021",
+      "position": "Administrative Assistant",
+      "company": "Department of Education Tiaong District",
+      "salary": "18000",
+      "grade": "SG-08/Step 2",
+      "status": "",
+      "govt_service": ""
+    },
+    {
+      "date_from": "2016-10-07 00:00:00",
+      "date_to": "05/30/2018",
+      "position": "Customer Service Representative",
+      "company": "XYZ Solutions Inc.",
+      "salary": "15000",
+      "grade": "N/A",
+      "status": "",
+      "govt_service": ""
+    },
+    {
+      "date_from": "2015-01-02 00:00:00",
+      "date_to": "12/31/2015",
+      "position": "HR Assistant Intern",
+      "company": "Ayala Land Inc.",
+      "salary": "5000",
+      "grade": "N/A",
+      "status": "",
+      "govt_service": ""
+    }
+  ],
+  "voluntary_work": [
+    {
+      "organization": "Philippine Red Cross – Lucena City Chapter, Quezon Province",
+      "date_from": "2022-05-08 00:00:00",
+      "date_to": "08/07/2022",
+      "hours": "24",
+      "position": ""
+    },
+    {
+      "organization": "Barangay San Isidro Youth Council – San Isidro, Tiaong, Quezon",
+      "date_from": "2021-01-06 00:00:00",
+      "date_to": "05/31/2022",
+      "hours": "120",
+      "position": ""
+    },
+    {
+      "organization": "Coastal Care Alliance – Brgy. Dalahican, Lucena City",
+      "date_from": "2020-10-09 00:00:00",
+      "date_to": "09/12/2020",
+      "hours": "16",
+      "position": ""
+    },
+    {
+      "organization": "Literacy Outreach Program – Tiaong Central Elementary School, Quezon",
+      "date_from": "11/14/2019",
+      "date_to": "11/16/2019",
+      "hours": "12",
+      "position": ""
+    }
+  ],
+  "learning_development": [
+    {
+      "title": "Project Management Essentials",
+      "date_from": "10/14/2022",
+      "date_to": "10/15/2022",
+      "hours": "16",
+      "type": "Supervisory",
+      "conductor": "ATT Institute"
+    },
+    {
+      "title": "Youth Leadership in Governance Workshop",
+      "date_from": "2021-10-04 00:00:00",
+      "date_to": "2021-12-04 00:00:00",
+      "hours": "24",
+      "type": "Managerial",
+      "conductor": "Department of the Interior and Local Government (DILG)"
+    },
+    {
+      "title": "Environmental Law and Policy for Local Government Units",
+      "date_from": "07/18/2020",
+      "date_to": "07/20/2020",
+      "hours": "20",
+      "type": "Technical / Legal",
+      "conductor": "University of the Philippines – Law Center"
+    },
+    {
+      "title": "Effective Communication Strategies for Public Service",
+      "date_from": "2019-05-09 00:00:00",
+      "date_to": "2019-06-09 00:00:00",
+      "hours": "12",
+      "type": "Managerial / Communication",
+      "conductor": "Civil Service Commission – NCR"
+    }
+  ],
+  "other_information": {
+    "references": [
+      {
+        "name": "Al John Villareal",
+        "address": "San Pablo City Laguna",
+        "tel_no": "9999999"
+      },
+      {
+        "name": "Catherine Castillo",
+        "address": "San Pablo City Laguna",
+        "tel_no": "888888"
+      },
+      {
+        "name": "Paul Jensen Lara",
+        "address": "San Pablo City Laguna",
+        "tel_no": "5555555"
+      },
+      {
+        "name": "42.",
+        "address": "I declare under oath that I have personally accomplished this Personal Data Sheet which is a true, correct and complete statement pursuant to the provisions of pertinent laws, rules and regulations of the Republic of the Philippines. I authorize the agency head/authorized representative to verify/validate the contents stated herein.          I  agree that any misrepresentation made in this document and its attachments shall cause the filing of administrative/criminal case/s against me.",
+        "tel_no": ""
+      },
+      {
+        "name": "Government Issued ID (i.e.Passport, GSIS, SSS, PRC, Driver's License, etc.)                               PLEASE INDICATE ID Number and Date of Issuance",
+        "address": "SIGNNNNNN",
+        "tel_no": ""
+      },
+      {
+        "name": "Government Issued ID:",
+        "address": "Driver's Liscense",
+        "tel_no": ""
+      }
+    ],
+    "government_service": [],
+    "signature_date": "Jan 1 2023/ Sanpablo City",
+    "government_issued_id": [
+      "Government Issued ID:"
+    ]
+  },
+  "extraction_metadata": {
+    "file_type": "Excel",
+    "extraction_method": "excel_sheet_parsing",
+    "extracted_at": "2025-10-22T11:57:49.669075",
+    "sheets_processed": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "Lookup"
+    ],
+    "errors": [],
+    "warnings": []
+  }
+}

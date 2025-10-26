@@ -45,6 +45,9 @@ const NavigationModule = {
     loadSectionData(sectionId) {
         switch(sectionId) {
             case 'upload':
+                if (typeof UploadModule !== 'undefined' && UploadModule.init) {
+                    UploadModule.init();
+                }
                 if (typeof loadJobCategoriesForUpload === 'function') {
                     loadJobCategoriesForUpload();
                 }
@@ -64,6 +67,21 @@ const NavigationModule = {
                     loadAnalytics();
                 }
                 break;
+            case 'job-postings':
+                if (typeof jobPostingManager !== 'undefined' && jobPostingManager.loadJobPostings) {
+                    // Show the job posting management section
+                    const jobPostingSection = document.getElementById('jobPostingManagement');
+                    if (jobPostingSection) {
+                        jobPostingSection.style.display = 'block';
+                        jobPostingManager.loadJobPostings();
+                    }
+                }
+                break;
+            case 'user-management':
+                if (typeof UserManagementModule !== 'undefined' && UserManagementModule.loadUsers) {
+                    UserManagementModule.loadUsers();
+                }
+                break;
         }
     },
 
@@ -71,11 +89,13 @@ const NavigationModule = {
     setupEventListeners() {
         this.navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
-                e.preventDefault();
                 const section = link.getAttribute('data-section');
                 if (section) {
+                    // Only prevent default for section-based navigation
+                    e.preventDefault();
                     this.showSection(section);
                 }
+                // Allow normal navigation for links without data-section (like logout, user-management)
             });
         });
     },
