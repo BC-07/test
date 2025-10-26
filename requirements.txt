@@ -27,4 +27,3 @@ pytesseract>=0.3.10
 Pillow>=9.0.0
 opencv-python>=4.5.0
 pdf2image>=1.16.0
-blis==0.7.11
